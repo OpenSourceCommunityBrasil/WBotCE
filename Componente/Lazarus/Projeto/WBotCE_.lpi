@@ -5,7 +5,7 @@
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="wbotce_proj"/>
+      <Title Value="WBotCE_"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -31,8 +31,15 @@
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="wbotce_proj.lpr"/>
+        <Filename Value="WBotCE_.lpr"/>
         <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="ufrmm.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ufrmM"/>
       </Unit>
     </Units>
   </ProjectOptions>
@@ -40,7 +47,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="wbotce_proj"/>
+      <Filename Value="WBotCE_"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
