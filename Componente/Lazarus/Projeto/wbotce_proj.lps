@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="12"/>
+    <BuildModes Active="Default"/>
+    <Units>
+      <Unit>
+        <Filename Value="wbotce_proj.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="8"/>
+        <CursorPos X="8" Y="13"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\wbot_const.pas"/>
+        <UnitName Value="WBot_Const"/>
+        <CursorPos X="16" Y="10"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\wbot_form.pas"/>
+        <ComponentName Value="WBotForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="WBot_Form"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="9"/>
+        <TopLine Value="13"/>
+        <CursorPos X="42" Y="23"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\wbot_core.pas"/>
+        <UnitName Value="WBot_Core"/>
+        <EditorIndex Value="11"/>
+        <CursorPos X="8" Y="31"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\wbot_config.pas"/>
+        <UnitName Value="WBot_Config"/>
+        <EditorIndex Value="7"/>
+        <CursorPos X="3" Y="9"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\Source\WBotCE_UtilsImg.pas"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\Source\WBotCE_Utils.pas"/>
+        <EditorIndex Value="2"/>
+        <CursorPos Y="11"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\Source\WBotCE_Core.pas"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="102"/>
+        <CursorPos X="29" Y="117"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\Source\WBotCE_Config.pas"/>
+        <EditorIndex Value="5"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\Source\WBotCE_Const.pas"/>
+        <EditorIndex Value="6"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\wbot_model.pas"/>
+        <UnitName Value="WBot_Model"/>
+        <EditorIndex Value="10"/>
+        <TopLine Value="622"/>
+        <CursorPos X="9" Y="632"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus\ide\lazarus.pp"/>
+        <UnitName Value="Lazarus"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="108"/>
+        <CursorPos X="28" Y="108"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+    </Units>
+    <JumpHistory HistoryIndex="11">
+      <Position>
+        <Filename Value="..\wbot_const.pas"/>
+        <Caret Line="20" Column="18" TopLine="7"/>
+      </Position>
+      <Position>
+        <Filename Value="..\wbot_const.pas"/>
+        <Caret Line="21" Column="17" TopLine="10"/>
+      </Position>
+      <Position>
+        <Filename Value="..\wbot_const.pas"/>
+        <Caret Line="22" Column="18" TopLine="10"/>
+      </Position>
+      <Position>
+        <Filename Value="..\wbot_const.pas"/>
+        <Caret Line="23" Column="13" TopLine="10"/>
+      </Position>
+      <Position>
+        <Filename Value="..\wbot_const.pas"/>
+        <Caret Line="10"/>
+      </Position>
+      <Position>
+        <Filename Value="..\wbot_core.pas"/>
+        <Caret Line="31" Column="10" TopLine="21"/>
+      </Position>
+      <Position>
+        <Filename Value="..\wbot_const.pas"/>
+        <Caret Line="10" Column="16"/>
+      </Position>
+      <Position>
+        <Filename Value="wbotce_proj.lpr"/>
+        <Caret Line="13" Column="9" TopLine="3"/>
+      </Position>
+      <Position>
+        <Filename Value="..\wbot_form.pas"/>
+        <Caret Line="11" Column="10"/>
+      </Position>
+      <Position>
+        <Filename Value="..\wbot_model.pas"/>
+        <Caret Line="632" Column="9" TopLine="622"/>
+      </Position>
+      <Position>
+        <Filename Value="..\wbot_form.pas"/>
+        <Caret Line="23" Column="42" TopLine="13"/>
+      </Position>
+      <Position>
+        <Filename Value="..\Source\WBotCE_Core.pas"/>
+        <Caret Line="117" Column="29" TopLine="102"/>
+      </Position>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes ActiveMode=""/>
+    </RunParams>
+  </ProjectSession>
+</CONFIG>

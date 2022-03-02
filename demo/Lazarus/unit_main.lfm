@@ -1,0 +1,504 @@
+object Form1: TForm1
+  Left = 586
+  Height = 398
+  Top = 138
+  Width = 600
+  Caption = 'WBot Demo'
+  ClientHeight = 398
+  ClientWidth = 600
+  OnShow = FormShow
+  Position = poDesktopCenter
+  LCLVersion = '2.0.12.0'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 267
+    Top = 64
+    Width = 600
+    ActivePage = TabSheet1
+    Align = alClient
+    ParentFont = False
+    TabIndex = 0
+    TabOrder = 0
+    object TabSheet1: TTabSheet
+      Caption = 'bot'
+      ClientHeight = 239
+      ClientWidth = 592
+      ParentFont = False
+      object GroupBox1: TGroupBox
+        AnchorSideLeft.Control = TabSheet1
+        AnchorSideTop.Control = CheckBox1
+        AnchorSideTop.Side = asrBottom
+        Left = 4
+        Height = 179
+        Top = 27
+        Width = 408
+        BorderSpacing.Left = 4
+        Caption = 'Monitor de mensagens'
+        ClientHeight = 159
+        ClientWidth = 404
+        ParentFont = False
+        TabOrder = 0
+        object Label1: TLabel
+          Left = 25
+          Height = 15
+          Top = 8
+          Width = 59
+          Caption = 'Contato id:'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label2: TLabel
+          Left = 5
+          Height = 15
+          Top = 23
+          Width = 79
+          Caption = 'Contato name:'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label3: TLabel
+          Left = 33
+          Height = 15
+          Top = 40
+          Width = 51
+          Caption = 'Recebida:'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label4: TLabel
+          Left = 40
+          Height = 15
+          Top = 96
+          Width = 44
+          Caption = 'Enviada:'
+          ParentColor = False
+          ParentFont = False
+        end
+        object LabelCtId: TLabel
+          Left = 92
+          Height = 15
+          Top = 8
+          Width = 11
+          Caption = 'Id'
+          Font.CharSet = ANSI_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object LabelCtName: TLabel
+          Left = 92
+          Height = 15
+          Top = 23
+          Width = 33
+          Caption = 'Name'
+          Font.CharSet = ANSI_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object MemoRecebida: TMemo
+          Left = 89
+          Height = 52
+          Top = 40
+          Width = 302
+          Font.CharSet = ANSI_CHARSET
+          Font.Color = clNavy
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+        end
+        object MemoEnviada: TMemo
+          Left = 89
+          Height = 52
+          Top = 96
+          Width = 302
+          Font.CharSet = ANSI_CHARSET
+          Font.Color = clGreen
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          Lines.Strings = (
+            ''
+          )
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 1
+        end
+      end
+      object CheckBox1: TCheckBox
+        AnchorSideLeft.Control = TabSheet1
+        AnchorSideTop.Control = TabSheet1
+        Left = 4
+        Height = 19
+        Top = 4
+        Width = 166
+        BorderSpacing.Around = 4
+        Caption = 'Ativar resposta automatica?'
+        OnChange = CheckBox1Change
+        ParentFont = False
+        TabOrder = 1
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'Mensagens'
+      ClientHeight = 239
+      ClientWidth = 592
+      ParentFont = False
+      object PageControlMsg: TPageControl
+        Left = 0
+        Height = 239
+        Top = 0
+        Width = 592
+        ActivePage = TabSheet2
+        Align = alClient
+        ParentFont = False
+        TabIndex = 0
+        TabOrder = 0
+        object TabSheet2: TTabSheet
+          Caption = 'Messages'
+          ClientHeight = 211
+          ClientWidth = 584
+          ParentFont = False
+          object ButtonCarregaContatos: TButton
+            AnchorSideLeft.Control = TabSheet2
+            AnchorSideTop.Control = TabSheet2
+            Left = 4
+            Height = 25
+            Top = 4
+            Width = 139
+            BorderSpacing.Around = 4
+            Caption = 'Carregar contatos'
+            OnClick = ButtonCarregaContatosClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object ListBoxContatos: TListBox
+            AnchorSideLeft.Control = TabSheet2
+            AnchorSideTop.Control = ButtonCarregaContatos
+            AnchorSideTop.Side = asrBottom
+            AnchorSideBottom.Control = TabSheet2
+            AnchorSideBottom.Side = asrBottom
+            Left = 4
+            Height = 174
+            Top = 33
+            Width = 303
+            Anchors = [akTop, akLeft, akBottom]
+            BorderSpacing.Around = 4
+            ItemHeight = 0
+            OnDblClick = ListBoxContatosDblClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object EditNumero: TEdit
+            AnchorSideLeft.Control = ListBoxContatos
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = ButtonCarregaContatos
+            AnchorSideTop.Side = asrBottom
+            Left = 311
+            Height = 23
+            Top = 33
+            Width = 184
+            BorderSpacing.Left = 4
+            ParentFont = False
+            TabOrder = 2
+          end
+          object MemoMsgTxt: TMemo
+            AnchorSideLeft.Control = ListBoxContatos
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = EditNumero
+            AnchorSideTop.Side = asrBottom
+            Left = 311
+            Height = 90
+            Top = 60
+            Width = 184
+            BorderSpacing.Left = 4
+            BorderSpacing.Top = 4
+            ParentFont = False
+            TabOrder = 3
+          end
+          object ButtonEnviarMsgText: TButton
+            AnchorSideLeft.Control = ListBoxContatos
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = MemoMsgTxt
+            AnchorSideTop.Side = asrBottom
+            Left = 311
+            Height = 25
+            Top = 154
+            Width = 184
+            BorderSpacing.Left = 4
+            BorderSpacing.Top = 4
+            Caption = 'Enviar Mensagem'
+            OnClick = ButtonEnviarMsgTextClick
+            ParentFont = False
+            TabOrder = 4
+          end
+          object ButtonEnviarMsgFile: TButton
+            AnchorSideLeft.Control = ListBoxContatos
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = ButtonEnviarMsgText
+            AnchorSideTop.Side = asrBottom
+            Left = 311
+            Height = 25
+            Top = 183
+            Width = 184
+            BorderSpacing.Left = 4
+            BorderSpacing.Top = 4
+            Caption = 'Enviar Arquivo'
+            OnClick = ButtonEnviarMsgFileClick
+            ParentFont = False
+            TabOrder = 5
+          end
+        end
+        object TabSheet4: TTabSheet
+          Caption = 'Messages Grupos'
+          ClientHeight = 211
+          ClientWidth = 584
+          ParentFont = False
+          object ButtonCarregaGrupos: TButton
+            AnchorSideLeft.Control = TabSheet4
+            AnchorSideTop.Control = TabSheet4
+            Left = 4
+            Height = 25
+            Top = 4
+            Width = 139
+            BorderSpacing.Around = 4
+            Caption = 'Carregar Grupos'
+            OnClick = ButtonCarregaGruposClick
+            ParentFont = False
+            TabOrder = 0
+          end
+          object ListBoxGrupos: TListBox
+            AnchorSideLeft.Control = TabSheet2
+            AnchorSideTop.Control = ButtonCarregaContatos
+            AnchorSideTop.Side = asrBottom
+            AnchorSideBottom.Control = TabSheet2
+            AnchorSideBottom.Side = asrBottom
+            Left = 4
+            Height = 165
+            Top = 33
+            Width = 303
+            Anchors = [akTop, akLeft, akBottom]
+            BorderSpacing.Around = 4
+            ItemHeight = 0
+            OnDblClick = ListBoxGruposDblClick
+            ParentFont = False
+            TabOrder = 1
+          end
+          object EditNumero1: TEdit
+            AnchorSideLeft.Control = ListBoxContatos
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = ButtonCarregaContatos
+            AnchorSideTop.Side = asrBottom
+            Left = 311
+            Height = 23
+            Top = 33
+            Width = 184
+            BorderSpacing.Left = 4
+            ParentFont = False
+            TabOrder = 2
+          end
+          object MemoMsgTxt1: TMemo
+            AnchorSideLeft.Control = ListBoxContatos
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = EditNumero1
+            AnchorSideTop.Side = asrBottom
+            Left = 311
+            Height = 90
+            Top = 57
+            Width = 184
+            BorderSpacing.Left = 4
+            BorderSpacing.Top = 4
+            ParentFont = False
+            TabOrder = 3
+          end
+          object ButtonEnviarMsgText1: TButton
+            AnchorSideLeft.Control = ListBoxGrupos
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = MemoMsgTxt1
+            AnchorSideTop.Side = asrBottom
+            Left = 311
+            Height = 25
+            Top = 150
+            Width = 184
+            BorderSpacing.Left = 4
+            BorderSpacing.Top = 4
+            Caption = 'Enviar Mensagem'
+            OnClick = ButtonEnviarMsgText1Click
+            ParentFont = False
+            TabOrder = 4
+          end
+          object ButtonEnviarMsgFile1: TButton
+            AnchorSideLeft.Control = ListBoxGrupos
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = ButtonEnviarMsgText1
+            AnchorSideTop.Side = asrBottom
+            Left = 311
+            Height = 25
+            Top = 179
+            Width = 184
+            BorderSpacing.Left = 4
+            BorderSpacing.Top = 4
+            Caption = 'Enviar Arquivo'
+            OnClick = ButtonEnviarMsgFile1Click
+            ParentFont = False
+            TabOrder = 5
+          end
+        end
+      end
+    end
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 64
+    Top = 0
+    Width = 600
+    Align = alTop
+    ClientHeight = 64
+    ClientWidth = 600
+    ParentFont = False
+    TabOrder = 1
+    object ButtonConecta: TButton
+      AnchorSideLeft.Control = Panel1
+      AnchorSideTop.Control = Panel1
+      Left = 5
+      Height = 49
+      Top = 5
+      Width = 75
+      BorderSpacing.Around = 4
+      Caption = 'Conectar'
+      OnClick = ButtonConectaClick
+      ParentFont = False
+      TabOrder = 0
+    end
+    object LabelStatus: TLabel
+      AnchorSideLeft.Control = Panel1
+      AnchorSideTop.Control = Panel1
+      AnchorSideRight.Control = Panel1
+      AnchorSideRight.Side = asrBottom
+      Left = 523
+      Height = 15
+      Top = 5
+      Width = 72
+      Anchors = [akTop, akRight]
+      BorderSpacing.Top = 4
+      BorderSpacing.Right = 4
+      Caption = 'Disconectado'
+      ParentColor = False
+      ParentFont = False
+    end
+    object CheckBox2: TCheckBox
+      AnchorSideLeft.Control = ButtonConecta
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = Panel1
+      Left = 84
+      Height = 19
+      Top = 5
+      Width = 114
+      BorderSpacing.Around = 4
+      Caption = 'Usar o Navegador'
+      Checked = True
+      ParentFont = False
+      State = cbChecked
+      TabOrder = 1
+    end
+    object Label5: TLabel
+      AnchorSideTop.Control = Panel1
+      AnchorSideRight.Control = LabelStatus
+      Left = 481
+      Height = 15
+      Top = 5
+      Width = 38
+      Anchors = [akTop, akRight]
+      BorderSpacing.Top = 4
+      BorderSpacing.Right = 4
+      Caption = 'Estado:'
+      ParentColor = False
+      ParentFont = False
+    end
+    object CheckBox3: TCheckBox
+      AnchorSideLeft.Control = ButtonConecta
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = CheckBox2
+      AnchorSideTop.Side = asrBottom
+      Left = 84
+      Height = 19
+      Top = 28
+      Width = 112
+      BorderSpacing.Around = 4
+      Caption = 'Monitorar Bateria'
+      Checked = True
+      ParentFont = False
+      State = cbChecked
+      TabOrder = 2
+    end
+    object Label6: TLabel
+      Left = 232
+      Height = 15
+      Top = 9
+      Width = 184
+      AutoSize = False
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clBlue
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Pitch = fpVariable
+      Font.Quality = fqDraft
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 0
+    Height = 67
+    Top = 331
+    Width = 600
+    Align = alBottom
+    Caption = 'Log'
+    ClientHeight = 47
+    ClientWidth = 596
+    ParentFont = False
+    TabOrder = 2
+    object MemoLog: TMemo
+      Left = 0
+      Height = 47
+      Top = 0
+      Width = 596
+      Align = alClient
+      ParentFont = False
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+  end
+  object WBot1: TWBot
+    Browser = False
+    OnConnected = WBot1Connected
+    OnDisconnected = WBot1Disconnected
+    OnLowBatteryLevel = WBot1LowBatteryLevel
+    OnMyNumber = WBot1MyNumber
+    OnRequestChat = WBot1RequestChat
+    OnRequestContact = WBot1RequestContact
+    OnRequestGroups = WBot1RequestGroups
+    Left = 496
+    Top = 16
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 518
+    Top = 250
+  end
+end
