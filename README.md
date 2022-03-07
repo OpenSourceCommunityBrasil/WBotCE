@@ -1,4 +1,4 @@
-<img alt="Logo" src="https://github.com/groupsc10/WBot/blob/master/logo/logo.png">
+<h1>WBotCE <img alt="Logo" src="https://github.com/OpenSourceCommunityBrasil/WBotCE/blob/main/Componente/Lazarus/logo/WBotCE.png"/></h1>
 
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/groupsc10/RSQL/LICENSE.txt)
