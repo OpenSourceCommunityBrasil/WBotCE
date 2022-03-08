@@ -1,7 +1,7 @@
 <h1>WBotCE <img alt="Logo" src="https://github.com/OpenSourceCommunityBrasil/WBotCE/blob/main/Componente/Lazarus/logo/WBotCE.png"/></h1>
 
 
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/groupsc10/RSQL/LICENSE.txt)
+[![License](https://img.shields.io/github/license/OpenSourceCommunityBrasil/WBotCE?label=License&style=plastic)](https://github.com/OpenSourceCommunityBrasil/WBotCE/blob/main/LICENSE)
 
 ## Introduction
 
@@ -14,7 +14,7 @@
 
 [![WBot first steps](https://img.youtube.com/vi/JT7P0asACjI/0.jpg)](https://youtu.be/JT7P0asACjI "WBot first steps")
 
-## Dependent
+## Dependancies
 This project depends on the following package: [CEF4Delphi](https://github.com/salvadordf/CEF4Delphi)
 
 ## Features
@@ -44,8 +44,5 @@ Contributions are welcome! Please, open an issue before submit any kind (ideas, 
 ## Credits
 
 Parts of this work were inspired by the following projects: 
-  [Projeto-TInject](https://github.com/mikelustosa/Projeto-TInject) 
-  [WBot](https://github.com/groupsc10/WBot)
-
-## License
-This project is released under MIT license. See [LICENSE](LICENSE.txt).
+  <br>[Projeto-TInject](https://github.com/mikelustosa/Projeto-TInject) 
+  <br>[WBot](https://github.com/groupsc10/WBot)
