@@ -28,6 +28,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="..\..\componente\Lazarus\Source"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -69,6 +70,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="..\..\componente\Lazarus\Source"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -107,7 +109,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="2">
+    <Units Count="3">
       <Unit0>
         <Filename Value="Demo.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -119,6 +121,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit1>
+      <Unit2>
+        <Filename Value="..\..\componente\Lazarus\Source\wbotce_const.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="WBotce_Const"/>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -129,6 +136,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..\componente\Lazarus\Source"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

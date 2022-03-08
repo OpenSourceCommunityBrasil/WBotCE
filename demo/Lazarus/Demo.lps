@@ -9,7 +9,7 @@
         <Filename Value="Demo.lpr"/>
         <IsPartOfProject Value="True"/>
         <CursorPos X="10" Y="10"/>
-        <UsageCount Value="104"/>
+        <UsageCount Value="106"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -21,7 +21,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="108"/>
         <CursorPos X="19" Y="54"/>
-        <UsageCount Value="104"/>
+        <UsageCount Value="106"/>
         <Bookmarks Count="1">
           <Item0 X="58" Y="245" ID="1"/>
         </Bookmarks>
@@ -167,92 +167,82 @@
         <UsageCount Value="11"/>
       </Unit19>
       <Unit20>
-        <Filename Value="..\..\Componente\Lazarus\Source\wbotce_config.pas"/>
+        <Filename Value="..\..\componente\Lazarus\Source\wbotce_config.pas"/>
         <UnitName Value="WBotce_Config"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
+        <TopLine Value="3"/>
+        <CursorPos X="34" Y="12"/>
         <UsageCount Value="12"/>
         <Loaded Value="True"/>
       </Unit20>
       <Unit21>
-        <Filename Value="..\..\Componente\Lazarus\Source\wbotce_const.pas"/>
+        <Filename Value="..\..\componente\Lazarus\Source\wbotce_const.pas"/>
+        <IsPartOfProject Value="True"/>
         <UnitName Value="WBotce_Const"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <CursorPos Y="10"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="21"/>
       </Unit21>
       <Unit22>
-        <Filename Value="..\..\Componente\Lazarus\Source\wbotce_utils.pas"/>
+        <Filename Value="..\..\componente\Lazarus\Source\wbotce_utils.pas"/>
         <UnitName Value="WBotce_Utils"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <CursorPos Y="10"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit22>
       <Unit23>
-        <Filename Value="..\..\Componente\Lazarus\Source\wbotce_utilsimg.pas"/>
+        <Filename Value="..\..\componente\Lazarus\Source\wbotce_utilsimg.pas"/>
         <UnitName Value="WBotce_UtilsImg"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="2" Y="9"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit23>
       <Unit24>
-        <Filename Value="..\..\Componente\Lazarus\Source\Models\wbotce_model.pas"/>
+        <Filename Value="..\..\componente\Lazarus\Source\Models\wbotce_model.pas"/>
         <UnitName Value="WBotce_Model"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
         <CursorPos Y="10"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit24>
       <Unit25>
-        <Filename Value="..\..\Componente\Lazarus\Pacote\wbotce_pack.pas"/>
-        <EditorIndex Value="6"/>
+        <Filename Value="..\..\componente\Lazarus\Pacote\wbotce_pack.pas"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="2" Y="9"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit25>
       <Unit26>
-        <Filename Value="..\..\Componente\Lazarus\Source\wbotce_core.pas"/>
-        <EditorIndex Value="7"/>
+        <Filename Value="..\..\componente\Lazarus\Source\wbotce_core.pas"/>
+        <EditorIndex Value="-1"/>
         <CursorPos Y="10"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit26>
       <Unit27>
-        <Filename Value="..\..\Componente\Lazarus\Source\View\wbotce_form.pas"/>
+        <Filename Value="..\..\componente\Lazarus\Source\View\wbotce_form.pas"/>
         <ComponentName Value="WBotCEForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="WBotce_Form"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="-1"/>
         <CursorPos Y="10"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit27>
       <Unit28>
-        <Filename Value="..\..\Componente\Lazarus\Source\View\wbotce_form.lfm"/>
-        <EditorIndex Value="9"/>
+        <Filename Value="..\..\componente\Lazarus\Source\View\wbotce_form.lfm"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="30" Y="10"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit28>
     </Units>
     <OtherDefines Count="1">
       <Define0 Value="Debug"/>
     </OtherDefines>
-    <JumpHistory Count="2" HistoryIndex="1">
+    <JumpHistory Count="1">
       <Position1>
         <Filename Value="Demo.lpr"/>
         <Caret Line="10" Column="10"/>
       </Position1>
-      <Position2>
-        <Filename Value="..\..\Componente\Lazarus\Source\View\wbotce_form.pas"/>
-        <Caret Line="10"/>
-      </Position2>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>

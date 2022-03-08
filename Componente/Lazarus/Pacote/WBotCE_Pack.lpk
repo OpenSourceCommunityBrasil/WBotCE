@@ -15,54 +15,54 @@
     </CompilerOptions>
     <Files Count="11">
       <Item1>
-        <Filename Value="wbotce.inc"/>
-        <Type Value="Include"/>
-      </Item1>
-      <Item2>
-        <Filename Value="wbotce.lrs"/>
-        <Type Value="LRS"/>
-      </Item2>
-      <Item3>
         <Filename Value="..\Source\wbotce_config.pas"/>
         <AddToUsesPkgSection Value="False"/>
         <UnitName Value="WBotce_Config"/>
-      </Item3>
-      <Item4>
+      </Item1>
+      <Item2>
         <Filename Value="..\Source\wbotce_const.pas"/>
         <AddToUsesPkgSection Value="False"/>
         <UnitName Value="WBotce_Const"/>
-      </Item4>
-      <Item5>
+      </Item2>
+      <Item3>
         <Filename Value="..\Source\wbotce_utils.pas"/>
         <AddToUsesPkgSection Value="False"/>
         <UnitName Value="WBotce_Utils"/>
-      </Item5>
-      <Item6>
+      </Item3>
+      <Item4>
         <Filename Value="..\Source\wbotce_utilsimg.pas"/>
         <AddToUsesPkgSection Value="False"/>
         <UnitName Value="WBotce_UtilsImg"/>
-      </Item6>
-      <Item7>
+      </Item4>
+      <Item5>
         <Filename Value="..\Source\Models\wbotce_model.pas"/>
         <AddToUsesPkgSection Value="False"/>
         <UnitName Value="WBotce_Model"/>
-      </Item7>
-      <Item8>
+      </Item5>
+      <Item6>
         <Filename Value="wbotce_pack.pas"/>
         <UnitName Value="wbotce_pack"/>
-      </Item8>
-      <Item9>
+      </Item6>
+      <Item7>
         <Filename Value="..\Source\wbotce_core.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="wbotce_core"/>
-      </Item9>
-      <Item10>
+      </Item7>
+      <Item8>
         <Filename Value="..\Source\View\wbotce_form.pas"/>
         <UnitName Value="WBotce_Form"/>
-      </Item10>
-      <Item11>
+      </Item8>
+      <Item9>
         <Filename Value="..\Source\View\wbotce_form.lfm"/>
         <Type Value="LFM"/>
+      </Item9>
+      <Item10>
+        <Filename Value="wbotce.inc"/>
+        <Type Value="Include"/>
+      </Item10>
+      <Item11>
+        <Filename Value="wbotce.lrs"/>
+        <Type Value="LRS"/>
       </Item11>
     </Files>
     <CompatibilityMode Value="True"/>
