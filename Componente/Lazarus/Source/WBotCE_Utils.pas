@@ -8,17 +8,16 @@
 
 }
 
+unit WBotce_Utils;
 
-unit WBotCE_Utils;
-
-{$i WBotCE.inc}
+{$i wbotce.inc}
 
 interface
 
 uses
   Classes, SysUtils, TypInfo, fpjson, jsonparser, jsonscanner, base64, LResources,
-  // Wbot
-  WBotCE_Model;
+  // WbotCE
+  WBotce_Model;
 
 function StringToFile(const AString: string; const AFileName: TFileName;
   const ASafely: boolean = True): boolean;

@@ -8,7 +8,7 @@
 
 }
 
-unit WBotCE_UtilsImg;
+unit WBotce_UtilsImg;
 
 {$mode objfpc}{$H+}
 

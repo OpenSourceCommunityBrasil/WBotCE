@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ComCtrls,
-  ExtCtrls, StrUtils, WBot_Core, WBot_Model, WBot_Utils;
+  ExtCtrls, StrUtils, WBotce_Core, WBotce_Model, WBotce_Utils;
 
 type
 
@@ -51,7 +51,7 @@ type
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
-    WBot1: TWBot;
+    WBot1: TWBotCE;
     procedure ButtonCarregaGruposClick(Sender: TObject);
     procedure ButtonCarregaContatosClick(Sender: TObject);
     procedure ButtonConectaClick(Sender: TObject);

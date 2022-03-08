@@ -2,62 +2,84 @@
 <CONFIG>
   <Package Version="5">
     <PathDelim Value="\"/>
-    <Name Value="WBotCE_Pack"/>
+    <Name Value="wbotce_pack"/>
     <Type Value="RunAndDesignTime"/>
     <CompilerOptions>
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <IncludeFiles Value="View;..\Source\View"/>
-        <OtherUnitFiles Value="Source;View;..\Source;..\Source\View;..\Source\Models"/>
+        <IncludeFiles Value="..\Source\View"/>
+        <OtherUnitFiles Value="..\Source\Models;..\Source;..\Source\View"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
-      <Linking>
-        <Debugging>
-          <UseHeaptrc Value="True"/>
-        </Debugging>
-      </Linking>
     </CompilerOptions>
-    <Version Major="1"/>
-    <Files Count="6">
+    <Files Count="11">
       <Item1>
-        <Filename Value="..\Source\WBotCE_Config.pas"/>
-        <UnitName Value="WBotCE_Config"/>
+        <Filename Value="wbotce.inc"/>
+        <Type Value="Include"/>
       </Item1>
       <Item2>
-        <Filename Value="..\Source\WBotCE_Const.pas"/>
-        <UnitName Value="WBotCE_Const"/>
+        <Filename Value="wbotce.lrs"/>
+        <Type Value="LRS"/>
       </Item2>
       <Item3>
-        <Filename Value="..\Source\WBotCE_Core.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="WBotCE_Core"/>
+        <Filename Value="..\Source\wbotce_config.pas"/>
+        <AddToUsesPkgSection Value="False"/>
+        <UnitName Value="WBotce_Config"/>
       </Item3>
       <Item4>
-        <Filename Value="..\Source\WBotCE_Utils.pas"/>
-        <UnitName Value="WBotCE_Utils"/>
+        <Filename Value="..\Source\wbotce_const.pas"/>
+        <AddToUsesPkgSection Value="False"/>
+        <UnitName Value="WBotce_Const"/>
       </Item4>
       <Item5>
-        <Filename Value="..\Source\WBotCE_UtilsImg.pas"/>
-        <UnitName Value="WBotCE_UtilsImg"/>
+        <Filename Value="..\Source\wbotce_utils.pas"/>
+        <AddToUsesPkgSection Value="False"/>
+        <UnitName Value="WBotce_Utils"/>
       </Item5>
       <Item6>
-        <Filename Value="..\Source\Models\WBotCE_Model.pas"/>
-        <UnitName Value="WBotCE_Model"/>
+        <Filename Value="..\Source\wbotce_utilsimg.pas"/>
+        <AddToUsesPkgSection Value="False"/>
+        <UnitName Value="WBotce_UtilsImg"/>
       </Item6>
+      <Item7>
+        <Filename Value="..\Source\Models\wbotce_model.pas"/>
+        <AddToUsesPkgSection Value="False"/>
+        <UnitName Value="WBotce_Model"/>
+      </Item7>
+      <Item8>
+        <Filename Value="wbotce_pack.pas"/>
+        <UnitName Value="wbotce_pack"/>
+      </Item8>
+      <Item9>
+        <Filename Value="..\Source\wbotce_core.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="wbotce_core"/>
+      </Item9>
+      <Item10>
+        <Filename Value="..\Source\View\wbotce_form.pas"/>
+        <UnitName Value="WBotce_Form"/>
+      </Item10>
+      <Item11>
+        <Filename Value="..\Source\View\wbotce_form.lfm"/>
+        <Type Value="LFM"/>
+      </Item11>
     </Files>
     <CompatibilityMode Value="True"/>
-    <RequiredPkgs Count="1">
+    <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="CEF4Delphi_Lazarus"/>
       </Item1>
+      <Item2>
+        <PackageName Value="FCL"/>
+      </Item2>
     </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
     <PublishOptions>
       <Version Value="2"/>
       <UseFileFilters Value="True"/>
     </PublishOptions>
-    <CustomOptions Items="ExternHelp" Version="2">
-      <_ExternHelp Items="Count"/>
-    </CustomOptions>
   </Package>
 </CONFIG>

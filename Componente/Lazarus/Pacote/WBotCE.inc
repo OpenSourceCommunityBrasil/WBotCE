@@ -1,4 +1,4 @@
 {$mode objfpc}{$H+}
 {$ifdef Debug}
-  {$Define wbotce_debug}
+  {$Define wbot_debug}
 {$endif}

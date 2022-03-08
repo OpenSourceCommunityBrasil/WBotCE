@@ -24,11 +24,10 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="Binarios\Demo"/>
+            <Filename Value=".\Binarios"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="C:\Users\Roniery\OneDrive\00-Programacao-Delphi\Minhas-Units\MeusComponentes\Vcl\WBotCE\"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -102,7 +101,7 @@
     </RunParams>
     <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="WBot_Pack"/>
+        <PackageName Value="wbotce_pack"/>
       </Item1>
       <Item2>
         <PackageName Value="LCL"/>

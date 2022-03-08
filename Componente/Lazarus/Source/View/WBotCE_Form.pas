@@ -8,9 +8,9 @@
 
 }
 
-unit WBotCE_Form;
+unit WBotce_Form;
 
-{$i WBotCE.inc}
+{$i wbotce.inc}
 
 interface
 
@@ -19,14 +19,14 @@ uses
   LResources,
   // CEF
   uCEFWindowParent, uCEFChromium, uCEFTypes, uCEFInterfaces, uCEFApplication,
-  // WBot
-  WBotCE_Const, WBotCE_Utils, WBotCE_Model;
+  // WBotCE
+  WBotce_Const, WBotce_Utils, WBotce_Model;
 
 type
 
-  { TWBotForm }
+  { TWBotCEForm }
 
-  TWBotForm = class(TForm)
+  TWBotCEForm = class(TForm)
     ChromiumWindow: TCEFWindowParent;
     Chromium: TChromium;
     QrCodeImg: TImage;
@@ -98,15 +98,15 @@ type
   end;
 
 var
-  WBotForm: TWBotForm;
+  WBotCEForm: TWBotCEForm;
 
 implementation
 
 {$R *.lfm}
 
-{ TWBotForm }
+{ TWBotCEForm }
 
-procedure TWBotForm.FormCreate(Sender: TObject);
+procedure TWBotCEForm.FormCreate(Sender: TObject);
 begin
   Chromium.DefaultUrl := WBOTCE_WHATSAPP;
   FConected := False;
@@ -121,12 +121,12 @@ begin
   FOnNotification:= nil;
 end;
 
-procedure TWBotForm.FormDestroy(Sender: TObject);
+procedure TWBotCEForm.FormDestroy(Sender: TObject);
 begin
   InternalNotification(atDestroy);
 end;          
 
-procedure TWBotForm.FormShow(Sender: TObject);
+procedure TWBotCEForm.FormShow(Sender: TObject);
 begin
   Caption := WBOTCE_NAME + ' - ' + WBOTCE_VERSION;
   StatusBar.SimpleText := EmptyStr;
@@ -143,7 +143,7 @@ begin
   end;
 end;
 
-procedure TWBotForm.OnTimerConnect(Sender: TObject);
+procedure TWBotCEForm.OnTimerConnect(Sender: TObject);
 var
   VStatus: boolean;
   VScript: string;
@@ -154,10 +154,10 @@ begin
     if (FAuthenticated) then
     begin
       // Inject script     
-      {$i WBotCE.lrs}
-      VScript := ResourceToString('WBotCE');
-      {$IfDef WBotCE_debug}
-      WriteLn('wbot script ', VScript);
+      {$i wbotce.lrs}
+      VScript := ResourceToString('wbotce');    
+      {$IfDef wbotce_debug}
+      WriteLn('wbotce script ', VScript);
       {$EndIf}
       ExecuteScript(VScript, True);
       Sleep(50);
@@ -177,7 +177,7 @@ begin
   end;
 end;
 
-procedure TWBotForm.OnTimerMonitoring(Sender: TObject);
+procedure TWBotCEForm.OnTimerMonitoring(Sender: TObject);
 begin
   TimerMonitoring.Enabled := False;
   try
@@ -201,14 +201,14 @@ begin
   end;
 end;
 
-procedure TWBotForm.ChromiumConsoleMessage(Sender: TObject;
+procedure TWBotCEForm.ChromiumConsoleMessage(Sender: TObject;
   const ABrowser: ICefBrowser; ALevel: TCefLogSeverity;
   const AMessage, ASource: ustring; ALine: Integer; out AResult: Boolean);
 var
   VConsole: TResponseConsole;
   VAction: TActionType;
 begin
-  {$IfDef wbot_debug}  
+  {$IfDef wbotce_debug}  
   WriteLn(AMessage);
   {$EndIf}
   // Check JSON
@@ -241,7 +241,7 @@ begin
   end;
 end;
 
-procedure TWBotForm.ChromiumTitleChange(Sender: TObject;
+procedure TWBotCEForm.ChromiumTitleChange(Sender: TObject;
   const ABrowser: ICefBrowser; const ATitle: ustring);
 begin
   Inc(FStep);
@@ -257,7 +257,7 @@ begin
   end;
 end;    
 
-procedure TWBotForm.SetZoom(const AValue: NativeInt);
+procedure TWBotCEForm.SetZoom(const AValue: NativeInt);
 var
   VIndex: NativeInt;
   VZoom: NativeInt;
@@ -274,7 +274,7 @@ begin
   end;
 end;
 
-procedure TWBotForm.InternalNotification(const AAction: TActionType;
+procedure TWBotCEForm.InternalNotification(const AAction: TActionType;
   const AData: string);
 begin
   if (Assigned(FOnNotification)) then
@@ -283,7 +283,7 @@ begin
   end;
 end;
 
-procedure TWBotForm.InternalError(const AError: string;
+procedure TWBotCEForm.InternalError(const AError: string;
   const AAdditionalInformation: string);
 begin
   if (Assigned(FOnError)) then
@@ -292,19 +292,19 @@ begin
   end;
 end;
 
-procedure TWBotForm.ExecuteScript(const AScript: string;
+procedure TWBotCEForm.ExecuteScript(const AScript: string;
   const ADirect: boolean);
 begin
   CheckCEFApp;  
   if (not (FConected)) and (not (ADirect))  then
   begin
-    raise EWBot.Create(EXCEPT_CEF_CONNECT);
+    raise EWBotCE.Create(EXCEPT_CEF_CONNECT);
   end;
   Chromium.Browser.MainFrame.ExecuteJavaScript(UnicodeString(AScript),
     UnicodeString('about:blank'), 0);
 end;
 
-procedure TWBotForm.ProcessQrCode(const AData: string);
+procedure TWBotCEForm.ProcessQrCode(const AData: string);
 var
   VQrCode: TResponseQrCode;
 begin
@@ -326,21 +326,21 @@ begin
   end;
 end;   
 
-procedure TWBotForm.Logout;
+procedure TWBotCEForm.Logout;
 begin
   ExecuteScript(CMD_LOGOUT);
 end;
 
-procedure TWBotForm.CheckCEFApp;
+procedure TWBotCEForm.CheckCEFApp;
 begin
   if (not(Assigned(GlobalCEFApp))) or
     (GlobalCEFApp.Status <> asInitialized) then
   begin
-    raise EWBot.Create(EXCEPT_CEF_APP);
+    raise EWBotCE.Create(EXCEPT_CEF_APP);
   end;
 end;
 
-procedure TWBotForm.Connect;
+procedure TWBotCEForm.Connect;
 var
   VStart: NativeUInt;
 begin
@@ -377,12 +377,12 @@ begin
     else
     begin
       InternalNotification(atDisconnected);
-      raise EWBot.Create(EXCEPT_CEF_CONNECT);
+      raise EWBotCE.Create(EXCEPT_CEF_CONNECT);
     end;
   end;
 end;
 
-procedure TWBotForm.Disconnect(const ALogout: boolean);
+procedure TWBotCEForm.Disconnect(const ALogout: boolean);
 begin
   if (not(FConected)) then
   begin
@@ -409,7 +409,7 @@ begin
   end;
 end;
 
-procedure TWBotForm.GetQrCode;
+procedure TWBotCEForm.GetQrCode;
 begin
   if (not(FBrowser)) then
   begin
@@ -417,32 +417,32 @@ begin
   end;
 end;
 
-procedure TWBotForm.GetBatteryLevel;
+procedure TWBotCEForm.GetBatteryLevel;
 begin                                  
   ExecuteScript(CMD_GET_BATTERY_LEVEL);
 end;
 
-procedure TWBotForm.GetUnreadMessages;
+procedure TWBotCEForm.GetUnreadMessages;
 begin
   ExecuteScript(CMD_GET_UNREAD_MESSAGES);
 end;
 
-procedure TWBotForm.GetAllContacts;
+procedure TWBotCEForm.GetAllContacts;
 begin
   ExecuteScript(CMD_GET_ALL_CONTACTS);
 end;
 
-procedure TWBotForm.GetAllGroups;
+procedure TWBotCEForm.GetAllGroups;
 begin
   ExecuteScript(CMD_GET_ALL_GROUPS);
 end;
 
-procedure TWBotForm.GetMyNumber;
+procedure TWBotCEForm.GetMyNumber;
 begin
   ExecuteScript(CMD_GET_MYNUMBER);
 end;
 
-procedure TWBotForm.ReadMsg(const ANumber: String);
+procedure TWBotCEForm.ReadMsg(const ANumber: String);
 var
   VScript: string;
 begin
@@ -451,7 +451,7 @@ begin
   ExecuteScript(VScript);
 end;
 
-procedure TWBotForm.SendContact(const ANumber, AContact: string);
+procedure TWBotCEForm.SendContact(const ANumber, AContact: string);
 var
   VScript: string;
 begin
@@ -461,7 +461,7 @@ begin
   ExecuteScript(VScript);
 end;
 
-procedure TWBotForm.SendMsg(const ANumber, AMsg: string);
+procedure TWBotCEForm.SendMsg(const ANumber, AMsg: string);
 var
   VScript: string;
 begin
@@ -471,7 +471,7 @@ begin
   ExecuteScript(VScript);
 end;
 
-procedure TWBotForm.SendMsgBase64(const ANumber, AMsg, AFileName,
+procedure TWBotCEForm.SendMsgBase64(const ANumber, AMsg, AFileName,
   ACaption: string);    
 var
   VScript: string;

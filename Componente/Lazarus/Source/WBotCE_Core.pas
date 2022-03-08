@@ -7,16 +7,17 @@
 |__/\__||_____|\___/|_|  |_____||_____|
 
 }
-unit WBotCE_Core;
 
-{$i WBotCE.inc}
+unit wbotce_core;
+
+{$i wbotce.inc}
 
 interface
 
 uses
   Classes, SysUtils, StrUtils, LResources,
   //WBot
-  WBotCE_Model, WBotCE_Form;
+  WBotce_Model, WBotce_Form;
 
 type            
   TRequestChatEvent = procedure(const ASender: TObject;
@@ -43,14 +44,14 @@ type
     FOnNotification: TNotificationEvent; 
     FOnRequestChat: TRequestChatEvent;
     FOnRequestContact: TRequestContactsEvent;
-    FForm: TWBotForm;
+    FForm: TWBotceForm;
     FOnRequestGroups: TRequestGroupsEvent;
     FVersion: string;
     function GetAuthenticated: boolean;
     function GetConected: boolean;
     procedure SetUnreadMsgs(const AValue: boolean);
   protected
-    property Console: TWBotForm read FForm;
+    property Console: TWBotceForm read FForm;
     procedure InternalError(const ASender: TObject; const AError: string;
       const AAdditionalInformation: string);  
     procedure InternalNotification(const ASender: TObject;
@@ -109,11 +110,11 @@ procedure Register;
 implementation
 
 uses
-  WBotCE_Const, WBotCE_Utils;
+  WBotce_Const, WBotce_Utils;
 
 procedure Register;
 begin        
-  {$i WBotCE.lrs}
+  {$i wbotce.lrs}
   RegisterComponents('WBotCE', [TWBotCE]);
 end;
 
@@ -276,7 +277,7 @@ begin
   inherited Create(AOwner);    
   if (not(csDesigning in ComponentState)) then
   begin
-    FForm := TWBotForm.Create(Self);  
+    FForm := TWBotCEForm.Create(Self);  
     FForm.OnError := @InternalError;
     FForm.OnNotification := @InternalNotification;
     FForm.MyNumber:= '';

@@ -7,9 +7,10 @@
 |__/\__||_____|\___/|_|  |_____||_____|
 
 }
-unit WBotCE_Const;
 
-{$i WBotCE.inc}
+unit WBotce_Const;
+
+{$i wbotce.inc}
 
 interface
 
@@ -17,8 +18,8 @@ uses
   Classes, SysUtils;
 
 const
-  WBOTCE_NAME = 'WBOTCE';
-  WBOTCE_VERSION = '1.0.0.0';
+  WBOTCE_NAME = 'WBOTCE';  
+  WBOTCE_VERSION = '0.1.1.1';   
   WBOTCE_WHATSAPP = 'https://web.whatsapp.com/';
   WBOTCE_INI = 'wbotce.ini';
 
@@ -63,7 +64,7 @@ resourcestring
     'Your CEF4 version is not compatible, please update your library at https://github.com/salvadordf/CEF4Delphi'
     + LineEnding + 'Required version: %s' + LineEnding + 'Identified version: %s';
 
-  EXCEPT_JS_UNKNOWN = 'Unknown wbot.js return';
+  EXCEPT_JS_UNKNOWN = 'Unknown wbotce.js return';
 
   EXCEPT_FILE_NOFOUND = '%s file not found';
 

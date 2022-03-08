@@ -7,9 +7,10 @@
 |__/\__||_____|\___/|_|  |_____||_____|
 
 }
-unit WBotCE_Config;
 
-{$i WBotCE.inc}
+unit WBotce_Config;
+
+{$i wbotce.inc}
 
 interface
 
@@ -17,8 +18,8 @@ uses
   SysUtils, LResources, IniFiles,
   // CEF
   uCEFApplication,
-  // WBot
-  WBotCE_Const;
+  // WBotCE
+  WBotce_Const;
                            
 function CreateGlobalCEFApp: boolean;
 procedure DestroyGlobalCEFApp;
@@ -40,7 +41,7 @@ end;
 
 function CreateGlobalCEFApp: boolean;
 begin
-  {$IfDef wbot_debug}
+  {$IfDef wbotce_debug}
   WriteLn('CreateGlobalCEFApp');
   {$EndIf}
   if (not(Assigned(GlobalCEFApp))) then
@@ -95,7 +96,7 @@ begin
   LocalIni.WriteString('Paths', 'Cache', string(GlobalCEFApp.Cache));
   LocalIni.WriteString('Paths', 'UserData', string(GlobalCEFApp.UserDataPath));
   FreeAndNil(GlobalCEFApp);   
-  {$IfDef wbot_debug}
+  {$IfDef wbotce_debug}
   WriteLn('DestroyGlobalCEFApp');
   {$EndIf}
 end;

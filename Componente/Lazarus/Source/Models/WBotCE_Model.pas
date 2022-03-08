@@ -8,9 +8,9 @@
 
 }
 
-unit WBotCE_Model;
+unit WBotce_Model;
 
-{$i WBotCE.inc}
+{$i wbotce.inc}
 
 interface
 
@@ -34,7 +34,7 @@ type
   TErrorEvent = procedure(const ASender: TObject; const AError: string;
     const AAdditionalInformation: string) of object;  
 
-  EWBot = Exception;
+  EWBotCE = Exception;
 
   { TModel }
 
@@ -628,8 +628,8 @@ type
 implementation
 
 uses
-  // WBot
-  WBotCE_Utils;
+  // WBotCE
+  WBotce_Utils;
 
 { TModel }
 

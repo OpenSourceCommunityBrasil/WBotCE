@@ -1,19 +1,31 @@
 # ignore an entire directory
 /dcu/
-/demo/Lazarus/Binarios/cef/
+
 /.git/
 *.cer
+
+/demo/Lazarus/Binarios/cef/
+/demo/Lazarus/lib/
+/demo/Lazarus/backup/
+
+/demo/Delphi/
+
+/componente/Lazarus/pacote/lib/
+/componente/Delphi/
 
 
 
 # ignore a file type
-#*.gitignore
+*.gitignore
 
 *.pem
 *.pfx
 *.key
 
 *.txt
+
+#Lazarus
+*.bak
 
 # Delphi compiler-generated binaries (safe to delete)
 *.bpl

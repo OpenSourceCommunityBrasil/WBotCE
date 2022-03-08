@@ -1,9 +1,9 @@
-object WBotForm: TWBotForm
+object WBotCEForm: TWBotCEForm
   Left = 718
   Height = 440
   Top = 186
   Width = 656
-  Caption = 'WBotForm'
+  Caption = 'WBotCEForm'
   ClientHeight = 440
   ClientWidth = 656
   Color = clWhite
