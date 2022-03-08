@@ -1,4 +1,4 @@
-<h1>WBotCE <img alt="Logo" src="https://github.com/OpenSourceCommunityBrasil/WBotCE/blob/main/Componente/Lazarus/logo/WBotCE.png"/></h1>
+<h1>WBotCE <img alt="Logo" src="https://github.com/OpenSourceCommunityBrasil/WBotCE/blob/main/Assets/WBotCE.png"/></h1>
 
 
 [![License](https://img.shields.io/github/license/OpenSourceCommunityBrasil/WBotCE?label=License&style=plastic)](https://github.com/OpenSourceCommunityBrasil/WBotCE/blob/main/LICENSE)
