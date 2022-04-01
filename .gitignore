@@ -29,6 +29,9 @@
 #Lazarus
 *.bak
 *.ppu
+*.compiled
+*.O
+*.o
 
 # Delphi compiler-generated binaries (safe to delete)
 *.bpl
