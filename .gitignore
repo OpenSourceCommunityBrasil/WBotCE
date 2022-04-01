@@ -13,7 +13,7 @@
 /componente/Lazarus/pacote/lib/
 /componente/Delphi/
 
-
+#teste de mudança
 
 # ignore a file type
 *.gitignore
