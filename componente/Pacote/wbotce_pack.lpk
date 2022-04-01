@@ -16,17 +16,14 @@
     <Files Count="11">
       <Item1>
         <Filename Value="..\Source\wbotce_config.pas"/>
-        <AddToUsesPkgSection Value="False"/>
         <UnitName Value="WBotce_Config"/>
       </Item1>
       <Item2>
         <Filename Value="..\Source\wbotce_const.pas"/>
-        <AddToUsesPkgSection Value="False"/>
         <UnitName Value="WBotce_Const"/>
       </Item2>
       <Item3>
         <Filename Value="..\Source\wbotce_utils.pas"/>
-        <AddToUsesPkgSection Value="False"/>
         <UnitName Value="WBotce_Utils"/>
       </Item3>
       <Item4>
@@ -36,7 +33,6 @@
       </Item4>
       <Item5>
         <Filename Value="..\Source\Models\wbotce_model.pas"/>
-        <AddToUsesPkgSection Value="False"/>
         <UnitName Value="WBotce_Model"/>
       </Item5>
       <Item6>

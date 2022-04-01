@@ -9,7 +9,7 @@
         <Filename Value="Demo.lpr"/>
         <IsPartOfProject Value="True"/>
         <CursorPos X="68" Y="29"/>
-        <UsageCount Value="106"/>
+        <UsageCount Value="107"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -21,7 +21,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="108"/>
         <CursorPos X="19" Y="54"/>
-        <UsageCount Value="106"/>
+        <UsageCount Value="107"/>
         <Bookmarks Count="1">
           <Item0 X="58" Y="245" ID="1"/>
         </Bookmarks>
@@ -32,7 +32,7 @@
         <UnitName Value="WBotce_Const"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="10"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="22"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\wbot_core.pas"/>
@@ -248,7 +248,7 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <TopLine Value="156"/>
-        <CursorPos X="50" Y="168"/>
+        <CursorPos X="63" Y="181"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
