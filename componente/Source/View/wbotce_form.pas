@@ -45,6 +45,8 @@ type
     procedure ChromiumTitleChange(Sender: TObject;
       const {%H-}ABrowser: ICefBrowser; const {%H-}ATitle: ustring);
   private
+    FJsScript : TStringList;
+    FApplicationPath: String;
     FMyNumber: String;
     FAuthenticated: boolean;
     FConected: boolean;
@@ -108,6 +110,8 @@ implementation
 
 procedure TWBotCEForm.FormCreate(Sender: TObject);
 begin
+  FApplicationPath:= ExtractFilePath(Application.ExeName);
+  FJsScript := TStringList.Create;
   Chromium.DefaultUrl := WBOTCE_WHATSAPP;
   FConected := False;
   FAuthenticated := False;
@@ -124,6 +128,7 @@ end;
 procedure TWBotCEForm.FormDestroy(Sender: TObject);
 begin
   InternalNotification(atDestroy);
+  FreeAndNil(FJsScript);
 end;          
 
 procedure TWBotCEForm.FormShow(Sender: TObject);
@@ -155,7 +160,12 @@ begin
     begin
       // Inject script     
       {$i wbotce.lrs}
-      VScript := ResourceToString('wbotce');    
+      if FileExists(FApplicationPath+'wbotce.js') then
+      begin
+        FJsScript.LoadFromFile(FApplicationPath+'wbotce.js');
+        VScript:= FJsScript.Text;
+      end
+      else VScript := ResourceToString('wbotce');
       {$IfDef wbotce_debug}
       WriteLn('wbotce script ', VScript);
       {$EndIf}
