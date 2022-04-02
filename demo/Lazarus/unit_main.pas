@@ -51,7 +51,7 @@ type
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
-    WBot1: TWBotCE;
+    WBotCE1: TWBotCE;
     procedure ButtonCarregaGruposClick(Sender: TObject);
     procedure ButtonCarregaContatosClick(Sender: TObject);
     procedure ButtonConectaClick(Sender: TObject);
@@ -63,15 +63,15 @@ type
     procedure FormShow(Sender: TObject);
     procedure ListBoxContatosDblClick(Sender: TObject);
     procedure ListBoxGruposDblClick(Sender: TObject);
-    procedure WBot1Connected(Sender: TObject);
-    procedure WBot1Disconnected(Sender: TObject);
-    procedure WBot1LowBatteryLevel(Sender: TObject);
-    procedure WBot1MyNumber(Sender: TObject);
-    procedure WBot1RequestChat(const Sender: TObject;
+    procedure WBotCE1Connected(Sender: TObject);
+    procedure WBotCE1Disconnected(Sender: TObject);
+    procedure WBotCE1LowBatteryLevel(Sender: TObject);
+    procedure WBotCE1MyNumber(Sender: TObject);
+    procedure WBotCE1RequestChat(const Sender: TObject;
       const AChats: TResponseChat);
-    procedure WBot1RequestContact(const Sender: TObject;
+    procedure WBotCE1RequestContact(const Sender: TObject;
       const AContacts: TResponseContact);
-    procedure WBot1RequestGroups(const Sender: TObject;
+    procedure WBotCE1RequestGroups(const Sender: TObject;
       const AGroups: TResponseGroups);
   private
     procedure AddLog(const AStr: String);
@@ -109,55 +109,55 @@ end;
 
 procedure TForm1.ButtonConectaClick(Sender: TObject);
 begin
-  if (WBot1.Conected) then
+  if (WBotCE1.Conected) then
   begin
-    WBot1.Disconnect;
+    WBotCE1.Disconnect;
     Limpar;
   end
   else
   begin
-    WBot1.MonitorBattery := CheckBox3.Checked;
-    WBot1.Browser := CheckBox2.Checked;
-    WBot1.Connect;
+    WBotCE1.MonitorBattery := CheckBox3.Checked;
+    WBotCE1.Browser := CheckBox2.Checked;
+    WBotCE1.Connect;
   end;
 end;
 
 procedure TForm1.ButtonEnviarMsgTextClick(Sender: TObject);
 begin
-  if WBot1.Conected then
+  if WBotCE1.Conected then
   begin
-    WBot1.SendMsg(EditNumero.Text, NormalizeString(MemoMsgTxt.Text));
+    WBotCE1.SendMsg(EditNumero.Text, NormalizeString(MemoMsgTxt.Text));
   end;
 end;
 
 procedure TForm1.ButtonEnviarMsgFileClick(Sender: TObject);
 begin
-  if WBot1.Conected and OpenDialog1.Execute then
+  if WBotCE1.Conected and OpenDialog1.Execute then
   begin
-    WBot1.SendFile(EditNumero.Text, NormalizeString(MemoMsgTxt.Text), OpenDialog1.FileName);
+    WBotCE1.SendFile(EditNumero.Text, NormalizeString(MemoMsgTxt.Text), OpenDialog1.FileName);
   end;
 end;
 
 procedure TForm1.ButtonEnviarMsgText1Click(Sender: TObject);
 begin
-  if WBot1.Conected then
+  if WBotCE1.Conected then
   begin
-    WBot1.SendMsg(EditNumero1.Text, NormalizeString(MemoMsgTxt1.Text));
+    WBotCE1.SendMsg(EditNumero1.Text, NormalizeString(MemoMsgTxt1.Text));
   end;
 end;    
 
 procedure TForm1.ButtonEnviarMsgFile1Click(Sender: TObject);
 begin
-  if WBot1.Conected and OpenDialog1.Execute then
+  if WBotCE1.Conected and OpenDialog1.Execute then
   begin
-    WBot1.SendFile(EditNumero1.Text, NormalizeString(MemoMsgTxt1.Text),
+    WBotCE1.SendFile(EditNumero1.Text, NormalizeString(MemoMsgTxt1.Text),
       OpenDialog1.FileName);
   end;
 end;
 
 procedure TForm1.CheckBox1Change(Sender: TObject);
 begin
-  WBot1.MonitorUnreadMsgs:=CheckBox1.Checked;
+  WBotCE1.MonitorUnreadMsgs:=CheckBox1.Checked;
 end;
 
 procedure TForm1.FormShow(Sender: TObject);
@@ -185,21 +185,21 @@ end;
 
 procedure TForm1.ButtonCarregaContatosClick(Sender: TObject);
 begin
-  if WBot1.Conected then
+  if WBotCE1.Conected then
   begin
-    WBot1.GetAllContacts;
+    WBotCE1.GetAllContacts;
   end;
 end;
 
 procedure TForm1.ButtonCarregaGruposClick(Sender: TObject);
 begin
-  if WBot1.Conected then
+  if WBotCE1.Conected then
   begin
-    WBot1.GetAllGroups;
+    WBotCE1.GetAllGroups;
   end;
 end;
 
-procedure TForm1.WBot1Connected(Sender: TObject);
+procedure TForm1.WBotCE1Connected(Sender: TObject);
 begin
   LabelStatus.Color:=clGreen;
   LabelStatus.Caption:='Conectado'; 
@@ -207,7 +207,7 @@ begin
   AddLog('Conectado');
 end;
 
-procedure TForm1.WBot1Disconnected(Sender: TObject);
+procedure TForm1.WBotCE1Disconnected(Sender: TObject);
 begin
   Label6.Caption:= '';
   LabelStatus.Color:=clRed;
@@ -216,17 +216,17 @@ begin
   AddLog('Desconectado');
 end;
 
-procedure TForm1.WBot1LowBatteryLevel(Sender: TObject);
+procedure TForm1.WBotCE1LowBatteryLevel(Sender: TObject);
 begin
   AddLog('Bateria baixa...');
 end;
 
-procedure TForm1.WBot1MyNumber(Sender: TObject);
+procedure TForm1.WBotCE1MyNumber(Sender: TObject);
 begin
-  Label6.Caption:= 'Número Logado '+ WBot1.MyNumber;
+  Label6.Caption:= 'Número Logado '+ WBotCE1.MyNumber;
 end;
 
-procedure TForm1.WBot1RequestChat(const Sender: TObject;
+procedure TForm1.WBotCE1RequestChat(const Sender: TObject;
   const AChats: TResponseChat);
 var
   VChat: TChat;
@@ -250,7 +250,7 @@ begin
   end;
 end;
 
-procedure TForm1.WBot1RequestContact(const Sender: TObject;
+procedure TForm1.WBotCE1RequestContact(const Sender: TObject;
   const AContacts: TResponseContact);
 Var
   VContact: TContact;
@@ -264,7 +264,7 @@ begin
   end;
 end;
 
-procedure TForm1.WBot1RequestGroups(const Sender: TObject;
+procedure TForm1.WBotCE1RequestGroups(const Sender: TObject;
   const AGroups: TResponseGroups);
 begin
   ListBoxGrupos.Items.Assign(AGroups.Result);
@@ -298,16 +298,16 @@ const
            'Digite a opção *1*.';
 begin
   //Ler mensagem
-  WBot1.ReadMsg(AFoneId);
+  WBotCE1.ReadMsg(AFoneId);
   if AMsgRecebida <> '1' then
   begin
     MemoEnviada.Text:=CMSGPER;
-    WBot1.SendMsg(AFoneId, CMSGPER);
+    WBotCE1.SendMsg(AFoneId, CMSGPER);
   end
   else
   begin
     MemoEnviada.Text:=CMSGDEF;
-    WBot1.SendMsg(AFoneId, CMSGDEF);
+    WBotCE1.SendMsg(AFoneId, CMSGDEF);
   end;
 end;
 

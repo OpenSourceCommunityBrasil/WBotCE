@@ -8,7 +8,7 @@ object Form1: TForm1
   ClientWidth = 600
   OnShow = FormShow
   Position = poDesktopCenter
-  LCLVersion = '2.0.12.0'
+  LCLVersion = '2.2.0.4'
   object PageControl1: TPageControl
     Left = 0
     Height = 267
@@ -44,7 +44,6 @@ object Form1: TForm1
           Top = 8
           Width = 59
           Caption = 'Contato id:'
-          ParentColor = False
           ParentFont = False
         end
         object Label2: TLabel
@@ -53,7 +52,6 @@ object Form1: TForm1
           Top = 23
           Width = 79
           Caption = 'Contato name:'
-          ParentColor = False
           ParentFont = False
         end
         object Label3: TLabel
@@ -62,7 +60,6 @@ object Form1: TForm1
           Top = 40
           Width = 51
           Caption = 'Recebida:'
-          ParentColor = False
           ParentFont = False
         end
         object Label4: TLabel
@@ -71,7 +68,6 @@ object Form1: TForm1
           Top = 96
           Width = 44
           Caption = 'Enviada:'
-          ParentColor = False
           ParentFont = False
         end
         object LabelCtId: TLabel
@@ -87,7 +83,6 @@ object Form1: TForm1
           Font.Pitch = fpVariable
           Font.Quality = fqDraft
           Font.Style = [fsBold]
-          ParentColor = False
           ParentFont = False
         end
         object LabelCtName: TLabel
@@ -103,7 +98,6 @@ object Form1: TForm1
           Font.Pitch = fpVariable
           Font.Quality = fqDraft
           Font.Style = [fsBold]
-          ParentColor = False
           ParentFont = False
         end
         object MemoRecebida: TMemo
@@ -398,7 +392,6 @@ object Form1: TForm1
       BorderSpacing.Top = 4
       BorderSpacing.Right = 4
       Caption = 'Disconectado'
-      ParentColor = False
       ParentFont = False
     end
     object CheckBox2: TCheckBox
@@ -427,7 +420,6 @@ object Form1: TForm1
       BorderSpacing.Top = 4
       BorderSpacing.Right = 4
       Caption = 'Estado:'
-      ParentColor = False
       ParentFont = False
     end
     object CheckBox3: TCheckBox
@@ -459,7 +451,6 @@ object Form1: TForm1
       Font.Pitch = fpVariable
       Font.Quality = fqDraft
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
     end
   end
@@ -485,15 +476,14 @@ object Form1: TForm1
       TabOrder = 0
     end
   end
-  object WBot1: TWBot
-    Browser = False
-    OnConnected = WBot1Connected
-    OnDisconnected = WBot1Disconnected
-    OnLowBatteryLevel = WBot1LowBatteryLevel
-    OnMyNumber = WBot1MyNumber
-    OnRequestChat = WBot1RequestChat
-    OnRequestContact = WBot1RequestContact
-    OnRequestGroups = WBot1RequestGroups
+  object WBotCE1: TWBotCE
+    OnConnected = WBotCE1Connected
+    OnDisconnected = WBotCE1Disconnected
+    OnLowBatteryLevel = WBotCE1LowBatteryLevel
+    OnMyNumber = WBotCE1MyNumber
+    OnRequestChat = WBotCE1RequestChat
+    OnRequestContact = WBotCE1RequestContact
+    OnRequestGroups = WBotCE1RequestGroups
     Left = 496
     Top = 16
   end

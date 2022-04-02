@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, WBotce_Config, WBotce_Const,
+  Forms, WBotce_Config,
   unit_main
   { you can add units after this };
 
