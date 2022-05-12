@@ -19,7 +19,7 @@ uses
 
 const
   WBOTCE_NAME = 'WBOTCE';  
-  WBOTCE_VERSION = '0.1.1.1';   
+  WBOTCE_VERSION = '0.1.1.2';
   WBOTCE_WHATSAPP = 'https://web.whatsapp.com/';
   WBOTCE_INI = 'wbotce.ini';
 
@@ -50,8 +50,7 @@ const
   CMD_READ_MSG =
     'window.WAPI.sendSeen("<#PHONE#>")';
 
-  CMD_GET_MYNUMBER=
-    'getMyNumber();';
+  CMD_GET_MYNUMBER= 'getMyNumber();';
 
 resourcestring
   EXCEPT_CEF_APP =

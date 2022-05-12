@@ -168,6 +168,7 @@ var
   VResponseBattery: TResponseBattery;
   VResponseMyNumber: TResponseMyNumber;
 begin
+
   if (Assigned(FOnNotification)) then
   begin
     FOnNotification(ASender, AAction, AData);

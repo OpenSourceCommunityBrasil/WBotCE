@@ -16,44 +16,43 @@ interface
 
 uses
   Classes, SysUtils, TypInfo, fpjson, jsonparser, jsonscanner, base64, LResources,
+
+  {$IfDef FPC}
+    dynlibs, LazUTF8, LConvEncoding, LCLType,
+  {$EndIf}
+
   // WbotCE
   WBotce_Model;
 
 function StringToFile(const AString: string; const AFileName: TFileName;
   const ASafely: boolean = True): boolean;
-
 function FileToString(const AFileName: TFileName;
   const ASafely: boolean = True): string;
-
 function JSONParse(const AString: TJSONStringType;
   const ASafely: boolean = True): TJSONData;
-
 procedure JSONToObject(const AJSON: TJSONStringType;
   const AObject: TObject); overload;
-
 procedure JSONToObject(const AJSON: TJSONData;
   const AObject: TObject); overload;
-
 function ObjectToJSON(const AObject: TObject): TJSONData;
-
 procedure Base64ToStream(const AString: string; const AStream: TStream;
   const AMode: TBase64DecodingMode = bdmMIME);
-
 function StreamToBase64(const AStream: TStream): string;
-
 function ResourceToString(const AResourceName: string): string;
-
 function ReplaceVAR(const AScript, AVar, ANewValue: string): string;
-
 function NormalizeString(const AValue: string): string;
-
 function StringToActionType(const AValue: string): TActionType;
-
 function ActionTypeToString(const AValue: TActionType): string;
-
 function OnlyNumber(const AValue: String): String;
-
+function IsOnlyNumber(PTexto: String): Boolean;
 function CharIsNum(const C: Char): Boolean;
+
+function LengthNativeString(const AString: String): Integer;
+function LeftStrNativeString(const AString: String; const ALen: Integer): String;
+function PadRight(const AString : String; const nLen : Integer;
+   const Caracter : Char) : String ;
+function PadLeft(const AString : String; const nLen : Integer;
+   const Caracter : Char) : String ;
 
 implementation
 
@@ -533,6 +532,18 @@ begin
   Result := Copy(VName, 3, Length(VName) - 2);
 end;
 
+
+function IsOnlyNumber(PTexto: String): Boolean;
+var ATam : Integer; Atexto : String;
+begin
+  result:= False;
+  if Trim(PTexto) = '' then
+    exit;
+  ATam:= Length(PTexto);
+  ATexto:= OnlyNumber(PTexto);
+  Result:= (ATam = Atexto.Length);
+end;
+
 {-----------------------------------------------------------------------------
   *** Extraido de Acbrutil ***
   Retorna uma String apenas com os char Numericos contidos em <Value>
@@ -558,6 +569,66 @@ end;
 function CharIsNum(const C: Char): Boolean;
 begin
   Result := CharInSet( C, ['0'..'9'] ) ;
+end;
+
+{-----------------------------------------------------------------------------
+   *** Extraido de Acbrutil ***
+  Retorna o numero de caracteres dentro de uma String, semelhante a Length()
+  Porém Lenght() não funciona corretamente em FPC com UTF8 e acentos
+ ---------------------------------------------------------------------------- }
+function LengthNativeString(const AString: String): Integer;
+begin
+  {$IfDef FPC}
+   Result := UTF8Length(AString);
+  {$Else}
+   Result := Length(AString);
+  {$EndIf}
+end;
+
+{-----------------------------------------------------------------------------
+  Semelhante a LeftStr(), mas trata corretanmente Strings em UTF8 no FPC
+ ---------------------------------------------------------------------------- }
+function LeftStrNativeString(const AString: String; const ALen: Integer): String;
+begin
+  {$IfDef FPC}
+   Result := UTF8LeftStr(AString, ALen);
+  {$Else}
+   Result := LeftStr(AString, ALen);
+  {$EndIf}
+end;
+
+{-----------------------------------------------------------------------------
+   *** Extraido de Acbrutil ***
+  Completa <AString> com <Caracter> a direita, até o tamanho <nLen>, Alinhando
+  a <AString> a Esquerda. Se <AString> for maior que <nLen>, ela será truncada
+ ---------------------------------------------------------------------------- }
+function PadRight(const AString : String; const nLen : Integer;
+   const Caracter : Char) : String ;
+var
+  Tam: Integer;
+begin
+  Tam := LengthNativeString( AString );
+  if Tam < nLen then
+    Result := AString + StringOfChar(Caracter, (nLen - Tam))
+  else
+    Result := LeftStrNativeString(AString, nLen);
+end;
+
+{-----------------------------------------------------------------------------
+  *** Extraido de Acbrutil ***
+  Completa <AString> com <Caracter> a esquerda, até o tamanho <nLen>, Alinhando
+  a <AString> a Direita. Se <AString> for maior que <nLen>, ela será truncada
+ ---------------------------------------------------------------------------- }
+function PadLeft(const AString : String; const nLen : Integer;
+   const Caracter : Char) : String ;
+var
+  Tam: Integer;
+begin
+  Tam := LengthNativeString( AString );
+  if Tam < nLen then
+    Result := StringOfChar(Caracter, (nLen - Tam)) + AString
+  else
+    Result := LeftStrNativeString(AString, nLen);  //RightStr(AString,nLen) ;
 end;
 
 end.
