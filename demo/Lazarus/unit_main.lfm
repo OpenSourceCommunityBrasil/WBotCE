@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 586
+  Left = 214
   Height = 398
-  Top = 138
+  Top = 215
   Width = 600
   Caption = 'WBot Demo'
   ClientHeight = 398
@@ -14,10 +14,10 @@ object Form1: TForm1
     Height = 267
     Top = 64
     Width = 600
-    ActivePage = TabSheet1
+    ActivePage = TabSheet3
     Align = alClient
     ParentFont = False
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'bot'
