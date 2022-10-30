@@ -1,6 +1,6 @@
 ![WBotCE Banner Dark](https://user-images.githubusercontent.com/26689802/196713893-fdc5c72b-fc94-46bf-abdf-79e1124ceed2.png)
 
-<a href="https://discord.gg/z8Wj7kQX"><img alt="join Discord" src="https://img.shields.io/discord/918891794597544056?color=blue&label=Discord&logo=discord&style=social"></a> <a href="https://t.me/+dgfBfZw6Bj5kNWFh"><img src="https://img.shields.io/badge/Telegram-join-blue?style=social&logo=telegram"> </a>
+<a href="https://discord.gg/z8Wj7kQX"><img alt="join Discord" src="https://img.shields.io/discord/918891794597544056?color=blue&label=Discord&logo=discord&style=social"></a> <a href="https://t.me/wbotce"><img src="https://img.shields.io/badge/Telegram-join-blue?style=social&logo=telegram"> </a>
 
 [![License](https://img.shields.io/github/license/OpenSourceCommunityBrasil/WBotCE?label=License&style=plastic)](https://github.com/OpenSourceCommunityBrasil/WBotCE/blob/main/LICENSE)
 
