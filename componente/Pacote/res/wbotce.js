@@ -1,5 +1,5 @@
 //Version_JS;Version_TInjectMin;Version_CEF4Min;
-//1.2.0.0;1.0.0.9;78.3.0
+//1.5.0.0;1.0.0.9;78.3.0
 //
 //
 
@@ -117,7 +117,7 @@ if (!window.Store||!window.Store.Msg) {
             let foundCount = 0;
             let neededObjects = [
                 { id: "Store", conditions: (module) => (module.default && module.default.Chat && module.default.Msg) ? module.default : null},
-  				{ id: "Conn", conditions: (module) => (module.default && module.default.ref && module.default.refTTL) ? module.default : (module.Conn ? module.Conn : null)},
+				{ id: "Conn", conditions: (module) => (module.default && module.default.ref && module.default.refTTL) ? module.default : (module.Conn ? module.Conn : null)},
                 { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && (module.default.prototype.processFiles !== undefined||module.default.prototype.processAttachments !== undefined)) ? module.default : null },
                 { id: "MediaProcess", conditions: (module) => (module.BLOB) ? module : null },
                 { id: "Archive", conditions: (module) => (module.setArchive) ? module : null },
@@ -130,8 +130,8 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "_Presence", conditions: (module) => (module.setPresenceAvailable && module.setPresenceUnavailable) ? module : null },
                 { id: "WapDelete", conditions: (module) => (module.sendConversationDelete && module.sendConversationDelete.length == 2) ? module : null },
                 { id: 'FindChat', conditions: (module) => (module && module.findChat) ? module : null},				
-				{ id: "WapQuery", conditions: (module) => (module.default && module.default.queryExist) ? module.default : null },				
-                { id: "WapQueryMD", conditions: (module) => (module.queryExist && module) ? module : null },
+				{ id: "WapQuery", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },
+				{ id: "WapQueryMD", conditions: (module) => module.queryExists && module.queryPhoneExists ? module : null},
 				{ id: 'Perfil', conditions: (module) => module.__esModule === true && module.setPushname && !module.getComposeContents ? module : null},
 				{ id: "CryptoLib", conditions: (module) => (module.decryptE2EMedia) ? module : null },
                 { id: "OpenChat", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.openChat) ? module.default : null },
@@ -1649,7 +1649,7 @@ window.WAPI.sendContact = function(to, contact) {
  * @param {string} chatId '000000000000@c.us'
  */
 window.WAPI.getNewMessageId = function(chatId) {
-    var newMsgId = Store.Msg.models[0].__x_id.clone();
+    var newMsgId = Store.Msg._models[0].__x_id.clone();
 
     newMsgId.fromMe = true;
     newMsgId.id = WAPI.getNewId().toUpperCase();
@@ -1677,14 +1677,9 @@ window.WAPI.sendVCard = async function (chatId, contactNumber, contactName) {
     const cont = await WAPI.getContact(contactNumber)
     const newMsgId = await WAPI.getNewMessageId(chatId)
     
-    // console.log(Store.addAndSendMsgToChat)
-    // console.log(cont)
-
     if(!cont){
         return
     }
-
-    console.log(cont)
 
     var cont2 = cont
     cont2.userid = contactNumber.substring(0, contactNumber.length - 5)
@@ -1692,56 +1687,30 @@ window.WAPI.sendVCard = async function (chatId, contactNumber, contactName) {
     let queue = Store.Chat.get(chatId)
 
     const chat = await Store.FindChat.findChat(idUser)
-    
-    // chat.addQueue = queue.addQueue
-    // chat.addQueue.enqueue = queue.addQueue.__proto__.enqueue
-    // // chat.msgs = queue.msgs
-    // // chat.msgs.add = queue.msgs.__proto__.add
-    // chat.sendQueue = queue.sendQueue
-    // chat.sendQueue.enqueue = queue.sendQueue.__proto__.enqueue
-
 
     const newchat = Object.assign(chat, queue);
-    
-    // chat.lastReceivedKey._serialized = inChat._serialized;
-    // chat.lastReceivedKey.id = inChat.id;
 
-    // var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
-    const fromWid = await window.Store.Conn.wid
-    const name = !contactName ? cont.__x_formattedTitle : contactName
+    const fromWid = await window.Store.UserPrefs.getMaybeMeUser()
+
+	let name = !contactName ? cont.name : contactName
+
     const body = await window.Store.Vcard.vcardFromContactModel(cont2)
-    console.log(body.vcard)
+
 
     var message = {
         ack: 0,
         id: newMsgId,
-        // local: !0,
         self: "in",
         t: parseInt(new Date().getTime() / 1000),
         to: newchat.id,
         isNewMsg: true,
         type: "vcard",
         from: fromWid,
-        // clientUrl:undefined,
-        // directPath:undefined,
-        // filehash:undefined,
-        // uploadhash:undefined,
-        // mediaKey:undefined,
-        // isQuotedMsgAvailable:false,
-        // invis:false,
-        // mediaKeyTimestamp:undefined,
-        // mimetype:undefined,
-        // height:undefined,
-        // width:undefined,
-        // ephemeralStartTimestamp:undefined,
         body: body.vcard,
-        // mediaData:undefined,
         isQuotedMsgAvailable: false,
-        // subtype: contactName, 
         vcardFormattedName: name
     };
-    // Object.assign(tempMsg, extend);
-    console.log(Store.addAndSendMsgToChat)
+
     return (await Promise.all(Store.addAndSendMsgToChat(newchat, message)))[1]=="success"
 };
 
@@ -2002,13 +1971,13 @@ window.WAPI.checkNumberStatus = async function (id) {
         let isMd = true
 		let result
 		try {
-			 result = await window.Store.WapQueryMD.queryExist('+'+id);
+			 result = await window.Store.WapQueryMD.queryPhoneExists(id);
 			
 		}
 		catch(e){		
 			isMd = false
 		}
-		result = isMd ? result : await window.Store.WapQuery.queryExist(id);//MD
+		result = isMd ? result : await window.Store.WapQuery.queryPhoneExists(id);
 				
 		let data = isMd ? window.WAPI._serializeNumberStatusObjMD(result) :  window.WAPI._serializeNumberStatusObj(result)
 		

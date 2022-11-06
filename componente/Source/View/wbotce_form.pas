@@ -465,7 +465,7 @@ procedure TWBotCEForm.SendContact(const ANumber, AContact: string);
 var
   VScript: string;
 begin
-  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_CONTACT;
+  VScript := CMD_SEND_CONTACT;
   VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
   VScript := ReplaceVAR(VScript, '<#CONTACT#>', AContact);
   ExecuteScript(VScript);
@@ -475,7 +475,7 @@ procedure TWBotCEForm.SendMsg(const ANumber, AMsg: string);
 var
   VScript: string;
 begin
-  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_MSG;
+  VScript := CMD_SEND_MSG;
   VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
   VScript := ReplaceVAR(VScript, '<#MSG#>', AMsg);
   ExecuteScript(VScript);
@@ -486,7 +486,7 @@ procedure TWBotCEForm.SendMsgBase64(const ANumber, AMsg, AFileName,
 var
   VScript: string;
 begin
-  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_MSG_BASE64; 
+  VScript := CMD_SEND_MSG_BASE64;
   VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
   VScript := ReplaceVAR(VScript, '<#MSG#>', AMsg); 
   VScript := ReplaceVAR(VScript, '<#FILENAME#>', AFileName);
