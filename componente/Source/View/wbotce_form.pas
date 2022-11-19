@@ -78,12 +78,14 @@ type
     procedure GetQrCode;
     procedure GetBatteryLevel; 
     procedure GetUnreadMessages;  
-    procedure GetAllContacts; 
+    procedure GetAllContacts;
+    procedure GetAllGroupContacts(AGroupId: String);
     procedure GetAllGroups;
     procedure GetMyNumber;
     procedure ReadMsg(const ANumber: String);
     procedure SendContact(const ANumber, AContact: string);
     procedure SendMsg(const ANumber, AMsg: string);
+    procedure SendButtons(const ANumber, AMsg, AButtons, AFooter: string);
     procedure SendMsgBase64(const ANumber, AMsg, AFileName, ACaption: string);
   public
     property MyNumber: String read FMyNumber write FMyNumber;
@@ -442,6 +444,15 @@ begin
   ExecuteScript(CMD_GET_ALL_CONTACTS);
 end;
 
+procedure TWBotCEForm.GetAllGroupContacts(AGroupId: String);
+var
+  VScript: string;
+begin
+  VScript := CMD_GET_ALL_GROUP_CONTACTS;
+  VScript := ReplaceVAR(VScript, '<#GROUP_ID#>', AGroupId);
+  ExecuteScript(VScript);
+end;
+
 procedure TWBotCEForm.GetAllGroups;
 begin
   ExecuteScript(CMD_GET_ALL_GROUPS);
@@ -465,6 +476,7 @@ procedure TWBotCEForm.SendContact(const ANumber, AContact: string);
 var
   VScript: string;
 begin
+//  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_CONTACT;
   VScript := CMD_SEND_CONTACT;
   VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
   VScript := ReplaceVAR(VScript, '<#CONTACT#>', AContact);
@@ -475,9 +487,24 @@ procedure TWBotCEForm.SendMsg(const ANumber, AMsg: string);
 var
   VScript: string;
 begin
+//  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_MSG;
   VScript := CMD_SEND_MSG;
   VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
   VScript := ReplaceVAR(VScript, '<#MSG#>', AMsg);
+  ExecuteScript(VScript);
+end;
+
+procedure TWBotCEForm.SendButtons(const ANumber, AMsg, AButtons, AFooter: string
+  );
+var
+  VScript: string;
+begin
+//  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_MSG;
+  VScript := CMD_SEND_BUTTONS;
+  VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
+  VScript := ReplaceVAR(VScript, '<#MSG#>', AMsg);
+  VScript := ReplaceVAR(VScript, '<#BUTTONS#>', AButtons);
+  VScript := ReplaceVAR(VScript, '<#FOOTER#>', AFooter);
   ExecuteScript(VScript);
 end;
 
@@ -486,6 +513,7 @@ procedure TWBotCEForm.SendMsgBase64(const ANumber, AMsg, AFileName,
 var
   VScript: string;
 begin
+//  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_MSG_BASE64;
   VScript := CMD_SEND_MSG_BASE64;
   VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
   VScript := ReplaceVAR(VScript, '<#MSG#>', AMsg); 

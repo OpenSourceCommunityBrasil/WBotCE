@@ -21,8 +21,8 @@ type
   TActionType = (
     atNone,
     // Response
-    atGetAllChats, atGetAllContacts, atGetAllGroups, atGetBatteryLevel,
-    atGetQrCode, atGetUnreadMessages, atGetMyNumber,
+    atGetAllChats, atGetAllContacts, atGetAllGroupContacts, atGetAllGroups,
+    atGetBatteryLevel, atGetQrCode, atGetUnreadMessages, atGetMyNumber,
     // Connection
     atConnected, atConnecting, atDisconnected, atDisconnecting, atDestroy,
     atDestroying, atInitializing, atInitialized
@@ -148,6 +148,18 @@ type
   { TResponseGroups }
 
   TResponseGroups = class(TModel)
+  private
+    FResult: TStringList;
+  public
+    destructor Destroy; override;
+    procedure AfterConstruction; override;
+  published
+    property Result: TStringList read FResult;
+  end;
+
+  { TResponseGroupContacts }
+
+  TResponseGroupContacts = class(TModel)
   private
     FResult: TStringList;
   public
@@ -630,6 +642,20 @@ implementation
 uses
   // WBotCE
   WBotce_Utils;
+
+{ TResponseGroupContacts }
+
+destructor TResponseGroupContacts.Destroy;
+begin
+  FreeAndNil(FResult);
+  inherited Destroy;
+end;
+
+procedure TResponseGroupContacts.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  FResult := TStringList.Create;
+end;
 
 { TModel }
 

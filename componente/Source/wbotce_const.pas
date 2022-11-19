@@ -28,7 +28,9 @@ const
   CMD_SEND_CONTACT
     = 'window.WAPI.sendContact("<#PHONE#>", "<#CONTACT#>")';
   CMD_SEND_MSG =
-    'window.WAPI.sendMessageToID("<#PHONE#>","<#MSG#>")';  
+    'window.WAPI.sendMessageToID("<#PHONE#>","<#MSG#>")';
+  CMD_SEND_BUTTONS =
+    'window.WAPI.sendButtons("<#PHONE#>","<#MSG#>",<#BUTTONS#>,"<#FOOTER#>")';
   CMD_SEND_MSG_BASE64 =
     'window.WAPI.sendImage("<#MSG#>", "<#PHONE#>", "<#FILENAME#>", "<#CAPTION#>")';
   CMD_GET_QRCODE =
@@ -40,6 +42,8 @@ const
     'window.WAPI.getUnreadMessages(includeMe="True", includeNotifications="True", use_unread_count="True");';
   CMD_GET_ALL_GROUPS =
     'window.WAPI.getAllGroups();';
+  CMD_GET_ALL_GROUP_CONTACTS =
+    'window.WAPI.getGroupParticipantIDs("<#GROUP_ID#>");';
   CMD_GET_ALL_CONTACTS =
     'window.WAPI.getAllContacts();';
   CMD_GET_ALL_CHATS =

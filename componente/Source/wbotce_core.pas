@@ -24,6 +24,8 @@ type
     const AChats: TResponseChat) of object;
   TRequestContactsEvent = procedure(const ASender: TObject;
     const AContacts: TResponseContact) of object;  
+  TRequestGroupContactsEvent = procedure(const ASender: TObject;
+    const AContacts: TResponseGroupContacts) of object;
   TRequestGroupsEvent = procedure(const ASender: TObject;
     const AGroups: TResponseGroups) of object;
 
@@ -44,6 +46,7 @@ type
     FOnNotification: TNotificationEvent; 
     FOnRequestChat: TRequestChatEvent;
     FOnRequestContact: TRequestContactsEvent;
+    FOnRequestGroupContacts: TRequestGroupContactsEvent;
     FForm: TWBotceForm;
     FOnRequestGroups: TRequestGroupsEvent;
     FVersion: string;
@@ -62,6 +65,7 @@ type
     procedure Connect;
     procedure Disconnect(const ALogout: boolean = False);
     procedure GetAllContacts;
+    procedure GetAllGroupContacts(AGroupId: String);
     procedure GetAllGroups;
     procedure GetBatteryLevel;
     procedure GetMyNumber;
@@ -71,6 +75,7 @@ type
     procedure SendFile(const APhone, ACaption, AFileName: string); overload;
     procedure SendFile(const APhone, ACaption, AFileName: string; AStream: TStream); overload;
     procedure SendMsg(const APhone, AMsg: string);
+    procedure SendButtons(const APhone, AMsg, AButtons, AFooter: string);
   public
     Property  MyNumber : String Read FMyNumber;
     property Authenticated: boolean read GetAuthenticated;
@@ -100,7 +105,9 @@ type
     property OnRequestChat: TRequestChatEvent
       read FOnRequestChat write FOnRequestChat;
     property OnRequestContact: TRequestContactsEvent
-      read FOnRequestContact write FOnRequestContact;  
+      read FOnRequestContact write FOnRequestContact;
+    property OnRequestGroupContacts: TRequestGroupContactsEvent
+      read FOnRequestGroupContacts write FOnRequestGroupContacts;
     property OnRequestGroups: TRequestGroupsEvent
       read FOnRequestGroups write FOnRequestGroups;
   end;
@@ -165,6 +172,7 @@ var
   VResponseChat: TResponseChat;
   VResponseContact: TResponseContact;   
   VResponseGroups: TResponseGroups;
+  VResponseGroupContacts: TResponseGroupContacts;
   VResponseBattery: TResponseBattery;
   VResponseMyNumber: TResponseMyNumber;
 begin
@@ -224,6 +232,20 @@ begin
           FOnRequestContact(Self, VResponseContact);
         finally
           FreeAndNil(VResponseContact);
+        end;
+      end;
+    end;
+
+    atGetAllGroupContacts:
+    begin
+      if (Assigned(FOnRequestGroupContacts)) then
+      begin
+        VResponseGroupContacts := TResponseGroupContacts.Create;
+        try
+          VResponseGroupContacts.LoadJSON(AData);
+          FOnRequestGroupContacts(Self, VResponseGroupContacts);
+        finally
+          FreeAndNil(VResponseGroupContacts);
         end;
       end;
     end;
@@ -311,6 +333,11 @@ end;
 procedure TWBotCE.GetAllContacts;
 begin
   FForm.GetAllContacts;
+end;
+
+procedure TWBotCE.GetAllGroupContacts(AGroupId: String);
+begin
+  FForm.GetAllGroupContacts(AGroupId);
 end;
 
 procedure TWBotCE.GetAllGroups;
@@ -410,6 +437,12 @@ procedure TWBotCE.SendMsg(const APhone, AMsg: string);
 begin
   // TODO: Check phone structure
   FForm.SendMsg(APhone, AMsg);
+end;
+
+procedure TWBotCE.SendButtons(const APhone, AMsg, AButtons, AFooter: string);
+begin
+  // TODO: Check phone structure
+  FForm.SendButtons(APhone, AMsg, AButtons, AFooter);
 end;
 
 end.
