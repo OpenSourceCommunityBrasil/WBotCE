@@ -76,6 +76,8 @@ type
     procedure SendFile(const APhone, ACaption, AFileName: string; AStream: TStream); overload;
     procedure SendMsg(const APhone, AMsg: string);
     procedure SendButtons(const APhone, AMsg, AButtons, AFooter: string);
+    procedure GroupAddParticipant(AGroupId, APhone: String);
+    procedure GroupRemoveParticipant(AGroupId, APhone: String);
   public
     Property  MyNumber : String Read FMyNumber;
     property Authenticated: boolean read GetAuthenticated;
@@ -443,6 +445,18 @@ procedure TWBotCE.SendButtons(const APhone, AMsg, AButtons, AFooter: string);
 begin
   // TODO: Check phone structure
   FForm.SendButtons(APhone, AMsg, AButtons, AFooter);
+end;
+
+procedure TWBotCE.GroupAddParticipant(AGroupId, APhone: String);
+begin
+  // TODO: Check phone structure
+  FForm.GroupAddParticipant(AGroupId, APhone);
+end;
+
+procedure TWBotCE.GroupRemoveParticipant(AGroupId, APhone: String);
+begin
+  // TODO: Check phone structure
+  FForm.GroupRemoveParticipant(AGroupId, APhone);
 end;
 
 end.

@@ -87,6 +87,8 @@ type
     procedure SendMsg(const ANumber, AMsg: string);
     procedure SendButtons(const ANumber, AMsg, AButtons, AFooter: string);
     procedure SendMsgBase64(const ANumber, AMsg, AFileName, ACaption: string);
+    procedure GroupAddParticipant(const AGroupId, ANumber: string);
+    procedure GroupRemoveParticipant(const AGroupId, ANumber: string);
   public
     property MyNumber: String read FMyNumber write FMyNumber;
     property Conected: boolean read FConected;
@@ -476,7 +478,6 @@ procedure TWBotCEForm.SendContact(const ANumber, AContact: string);
 var
   VScript: string;
 begin
-//  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_CONTACT;
   VScript := CMD_SEND_CONTACT;
   VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
   VScript := ReplaceVAR(VScript, '<#CONTACT#>', AContact);
@@ -487,7 +488,6 @@ procedure TWBotCEForm.SendMsg(const ANumber, AMsg: string);
 var
   VScript: string;
 begin
-//  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_MSG;
   VScript := CMD_SEND_MSG;
   VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
   VScript := ReplaceVAR(VScript, '<#MSG#>', AMsg);
@@ -499,7 +499,6 @@ procedure TWBotCEForm.SendButtons(const ANumber, AMsg, AButtons, AFooter: string
 var
   VScript: string;
 begin
-//  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_MSG;
   VScript := CMD_SEND_BUTTONS;
   VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
   VScript := ReplaceVAR(VScript, '<#MSG#>', AMsg);
@@ -513,12 +512,31 @@ procedure TWBotCEForm.SendMsgBase64(const ANumber, AMsg, AFileName,
 var
   VScript: string;
 begin
-//  VScript := CMD_SEND_CHAT_STATE + LineEnding + CMD_SEND_MSG_BASE64;
   VScript := CMD_SEND_MSG_BASE64;
   VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumber);
   VScript := ReplaceVAR(VScript, '<#MSG#>', AMsg); 
   VScript := ReplaceVAR(VScript, '<#FILENAME#>', AFileName);
   VScript := ReplaceVAR(VScript, '<#CAPTION#>', ACaption);
+  ExecuteScript(VScript);
+end;
+
+procedure TWBotCEForm.GroupAddParticipant(const AGroupId, ANumber: string);
+var
+  VScript: string;
+begin
+  VScript := CMD_GROUP_ADD_PARTICIPANT;
+  VScript := ReplaceVAR(VScript, '<#GROUP_ID#>', AGroupId);
+  VScript := ReplaceVAR(VScript, '<#PARTICIPANT_NUMBER#>', ANumber);
+  ExecuteScript(VScript);
+end;
+
+procedure TWBotCEForm.GroupRemoveParticipant(const AGroupId, ANumber: string);
+var
+  VScript: string;
+begin
+  VScript := CMD_GROUP_REMOVE_PARTICIPANT;
+  VScript := ReplaceVAR(VScript, '<#GROUP_ID#>', AGroupId);
+  VScript := ReplaceVAR(VScript, '<#PARTICIPANT_NUMBER#>', ANumber);
   ExecuteScript(VScript);
 end;
 

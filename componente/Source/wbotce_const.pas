@@ -51,6 +51,9 @@ const
   CMD_LOGOUT =
     'localStorage.clear(); location.reload();';
 
+  CMD_GROUP_ADD_PARTICIPANT = 'window.WAPI.addParticipant("<#GROUP_ID#>", "<#PARTICIPANT_NUMBER#>"); setTimeout(function(){ window.WAPI.getGroupParticipantIDs("<#GROUP_ID#>"); }, 3000);';
+  CMD_GROUP_REMOVE_PARTICIPANT = 'window.WAPI.removeParticipant("<#GROUP_ID#>", "<#PARTICIPANT_NUMBER#>");setTimeout(function(){ window.WAPI.getGroupParticipantIDs("<#GROUP_ID#>"); }, 3000);';
+
   CMD_READ_MSG =
     'window.WAPI.sendSeen("<#PHONE#>")';
 
