@@ -1,5 +1,5 @@
 //Version_JS;Version_TInjectMin;Version_CEF4Min;
-//1.5.0.0;1.0.0.9;78.3.0
+//1.6.0.0;1.0.0.9;78.3.0
 //
 //
 
@@ -65,6 +65,7 @@ var gettingUnreadMessages = false;
 
 function startMonitor(intervalSeconds = 0) {
     isLoggedStatus = WAPI.isLoggedIn();
+	window.WAPI.onIncomingCall();
 	
     if (intervalSeconds >= 1) {
         intervalMonitor = window.setInterval(monitorUnReadMessages, intervalSeconds * 1000);
@@ -130,7 +131,7 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "_Presence", conditions: (module) => (module.setPresenceAvailable && module.setPresenceUnavailable) ? module : null },
                 { id: "WapDelete", conditions: (module) => (module.sendConversationDelete && module.sendConversationDelete.length == 2) ? module : null },
                 { id: 'FindChat', conditions: (module) => (module && module.findChat) ? module : null},				
-				{ id: "WapQuery", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },
+				{ id: "WapQuery", conditions: (module) => (module.default && module.default.queryExist) ? module.default : null },				
 				{ id: "WapQueryMD", conditions: (module) => module.queryExists && module.queryPhoneExists ? module : null},
 				{ id: 'Perfil', conditions: (module) => module.__esModule === true && module.setPushname && !module.getComposeContents ? module : null},
 				{ id: "CryptoLib", conditions: (module) => (module.decryptE2EMedia) ? module : null },
@@ -164,7 +165,10 @@ if (!window.Store||!window.Store.Msg) {
                 { id: "MediaUpload", conditions: (module) => (module.default && module.default.mediaUpload) ? module.default : null },
                 { id: "UploadUtils", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null },
 				{ id: 'UserPrefs', conditions: (module) => (module.getMaybeMeUser ? module : null), },
-                { id: 'Vcard', conditions: (module) => (module.vcardFromContactModel ? module : null)}
+                { id: 'Vcard', conditions: (module) => (module.vcardFromContactModel ? module : null)},
+				{ id: 'Clock', conditions: (module) => (module.Clock ? module.Clock : null)},
+                { id: 'TemplateButtonCollection', conditions: (module) => (module.TemplateButtonCollectionImpl || module.TemplateButtonCollection ? module.TemplateButtonCollection : null)},
+                { id: 'ButtonCollection', conditions: (module) => (module.ButtonCollectionImpl || module.ButtonCollection ? module.ButtonCollection : null)},
             ];
             for (let idx in modules) {
             	if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
@@ -263,8 +267,9 @@ window.WAPI._serializeMessageObj = (obj) => {
     if (obj == undefined) {
         return null;
     }
-    const _chat = obj['chat'] ? WAPI._serializeChatObj(obj['chat']) : {};
-    if(obj.quotedMsg) obj.quotedMsgObj();
+
+	const _chat = obj['chat'] ? WAPI._serializeChatObj(obj['chat']) : {};
+
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         id: obj.id._serialized,
         //add 02/06/2020 mike -->
@@ -1649,7 +1654,7 @@ window.WAPI.sendContact = function(to, contact) {
  * @param {string} chatId '000000000000@c.us'
  */
 window.WAPI.getNewMessageId = function(chatId) {
-    var newMsgId = Store.Msg._models[0].__x_id.clone();
+    var newMsgId = Store.Msg.models[0].__x_id.clone();
 
     newMsgId.fromMe = true;
     newMsgId.id = WAPI.getNewId().toUpperCase();
@@ -1677,9 +1682,14 @@ window.WAPI.sendVCard = async function (chatId, contactNumber, contactName) {
     const cont = await WAPI.getContact(contactNumber)
     const newMsgId = await WAPI.getNewMessageId(chatId)
     
+    // console.log(Store.addAndSendMsgToChat)
+    // console.log(cont)
+
     if(!cont){
         return
     }
+
+    console.log(cont)
 
     var cont2 = cont
     cont2.userid = contactNumber.substring(0, contactNumber.length - 5)
@@ -1687,30 +1697,56 @@ window.WAPI.sendVCard = async function (chatId, contactNumber, contactName) {
     let queue = Store.Chat.get(chatId)
 
     const chat = await Store.FindChat.findChat(idUser)
+    
+    // chat.addQueue = queue.addQueue
+    // chat.addQueue.enqueue = queue.addQueue.__proto__.enqueue
+    // // chat.msgs = queue.msgs
+    // // chat.msgs.add = queue.msgs.__proto__.add
+    // chat.sendQueue = queue.sendQueue
+    // chat.sendQueue.enqueue = queue.sendQueue.__proto__.enqueue
+
 
     const newchat = Object.assign(chat, queue);
+    
+    // chat.lastReceivedKey._serialized = inChat._serialized;
+    // chat.lastReceivedKey.id = inChat.id;
 
-    const fromWid = await window.Store.UserPrefs.getMaybeMeUser()
-
-	let name = !contactName ? cont.name : contactName
-
+    // var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
+    const fromWid = await window.Store.Conn.wid
+    const name = !contactName ? cont.__x_formattedTitle : contactName
     const body = await window.Store.Vcard.vcardFromContactModel(cont2)
-
+    console.log(body.vcard)
 
     var message = {
         ack: 0,
         id: newMsgId,
+        // local: !0,
         self: "in",
         t: parseInt(new Date().getTime() / 1000),
         to: newchat.id,
         isNewMsg: true,
         type: "vcard",
         from: fromWid,
+        // clientUrl:undefined,
+        // directPath:undefined,
+        // filehash:undefined,
+        // uploadhash:undefined,
+        // mediaKey:undefined,
+        // isQuotedMsgAvailable:false,
+        // invis:false,
+        // mediaKeyTimestamp:undefined,
+        // mimetype:undefined,
+        // height:undefined,
+        // width:undefined,
+        // ephemeralStartTimestamp:undefined,
         body: body.vcard,
+        // mediaData:undefined,
         isQuotedMsgAvailable: false,
+        // subtype: contactName, 
         vcardFormattedName: name
     };
-
+    // Object.assign(tempMsg, extend);
+    console.log(Store.addAndSendMsgToChat)
     return (await Promise.all(Store.addAndSendMsgToChat(newchat, message)))[1]=="success"
 };
 
@@ -2008,6 +2044,14 @@ window.WAPI.sendButtons = async function (chatId, title, buttons, description = 
     return WAPI.sendMessageOptions(chatId, title, options);
 };
 
+const defaultSendMessageOptionsWAPI = {
+    createChat: false,
+    detectMentioned: true,
+    linkPreview: true,
+    markIsRead: true,
+    waitForAck: true,
+};
+
 window.WAPI.sendMessageOptions = async function (chatId, content, options = {}) {
     var idUser = new window.Store.UserConstructor(chatId, {
         intentionallyUsePrivateConstructor: true
@@ -2138,4 +2182,224 @@ window.WAPI.sendMessageOptions = async function (chatId, content, options = {}) 
     await window.Store.addAndSendMsgToChat(chat, message);
   
     return newMsgId._serialized;
+};
+
+function generateMessageID(chat) {
+    let to = chat.id;
+    return new Store.MsgKey({
+        from: Store.UserPrefs.getMaybeMeUser(),
+        to: chat.id,
+        id: WAPI.getNewId(),
+        selfDir: 'out',
+    });
+}
+
+/*Font https://github.com/wppconnect-team/wa-js/blob/main/src/chat/functions/prepareRawMessage.ts*/
+async function prepareRawMessageWAPI(chat, message, options = {}) {
+    options = Object.assign(Object.assign({}, defaultSendMessageOptionsWAPI), options);
+    message = Object.assign({ t: 0, from: Store.UserPrefs.getMaybeMeUser(), to: chat.id, self: 'out', isNewMsg: true, local: true, ack: 0 }, message);
+    if (options.messageId) {
+        if (typeof options.messageId === 'string') {
+            options.messageId = Store.MsgKey.fromString(options.messageId);
+        }
+        if (!options.messageId.fromMe) {
+            throw Error('Message key is not from me, messageId: ' + options.messageId.toString());
+        }
+        if (!options.messageId.remote.equals(chat.id)) {
+            throw Error('Message key remote ID is not same of chat, messageId: ' + options.messageId.toString());
+        }
+        message.id = options.messageId;
+    }
+    if (!message.id) {
+        message.id = generateMessageID(chat);
+    }
+    if (options.mentionedList && !Array.isArray(options.mentionedList)) {
+        throw Error('The option mentionedList is not an array, mentionedList: ' + options.mentionedList);
+    }
+
+    return message;
+}
+
+/*Font https://github.com/wppconnect-team/wa-js/blob/main/src/chat/functions/sendRawMessage.ts*/
+async function sendRawMessageWAPI(chatId, rawMessage, options = {}) {
+    options = Object.assign(Object.assign({}, defaultSendMessageOptionsWAPI), options);
+    const chat = options.createChat
+        ? await Store.FindChat.findChat(chatId)
+        : WAPI.getChat(chatId);
+    rawMessage = await prepareRawMessageWAPI(chat, rawMessage, options);
+
+    const result = await Store.addAndSendMsgToChat(chat, rawMessage);
+
+    const message = await result[0];
+    if (options.waitForAck) {        
+        const sendResult = await result[1];
+    }
+    return {
+        id: message.id.toString(),
+        ack: message.ack,
+        sendMsgResult: result[1],
+    };
+}
+
+/*font https://github.com/wppconnect-team/wa-js/blob/main/src/chat/functions/sendCreatePollMessage.ts*/
+window.WAPI.sendPool = async function(chatId, title, surveyList) {
+    const survey = {
+		type: "poll_creation",
+        pollName: title,
+        pollOptions: surveyList.map(((chatId, title) => ({
+        name: chatId,
+        localId: title
+		}))),
+			pollEncKey: self.crypto.getRandomValues(new Uint8Array(32)),
+			pollSelectableOptionsCount: 1,
+			messageSecret: self.crypto.getRandomValues(new Uint8Array(32))
+    };
+    
+	return await (0, sendRawMessageWAPI)(chatId, survey)
+}
+
+//Mike W. Lustosa 14/11/2022
+window.WAPI.onIncomingCall = function (onIncomingCallCallback) {
+	window.Store.Call.on('add', WAPI.onIncomingCallCallback);		
+    return true;	
+}
+
+//Mike W. Lustosa 14/11/2022
+window.WAPI.onIncomingCallCallback = async function() {
+	
+	//SetConsoleMessage('getIncomingCall', JSON.stringify({ Result : window.Store.Call._models[0].__x_peerJid.user }))
+	
+	//SetConsoleMessage('getIncomingCall', JSON.stringify( window.Store.Call._models[0].__x_peerJid.user))
+	SetConsoleMessage('getIncomingCall', window.Store.Call._models[0].__x_peerJid.user)
+	
+	window.Store.Call._models = []
+}
+
+window.WAPI.sendOptions = async function (to, title, subTitle, description, buttonText, menu) {
+    if (!title && typeof title != 'string') {
+        return WAPI.scope(null, true, 404, 'Enter the title variable as an string');
+      }
+    
+      if (!subTitle && typeof subTitle != 'string') {
+        return WAPI.scope(
+          null,
+          true,
+          404,
+          'Enter the SubTitle variable as an string'
+        );
+      }
+    
+      if (!description && typeof description != 'string') {
+        return WAPI.scope(
+          null,
+          true,
+          404,
+          'Enter the description variable as an string'
+        );
+      }
+    
+      if (!buttonText && typeof buttonText != 'string') {
+        return WAPI.scope(
+          null,
+          true,
+          404,
+          'Enter the buttonText variable as an string'
+        );
+      }
+    
+      if (!menu && Array.isArray(menu) === false) {
+        return WAPI.scope(null, true, 404, 'Enter the menu variable as an array');
+      }
+    
+      for (let index in menu) {
+        if (index !== 'remove') {
+          if (
+            !!menu[index].title &&
+            typeof menu[index].title === 'string' &&
+            menu[index].title.length
+          ) {
+            if (
+              !!menu[index].rows &&
+              Array.isArray(menu[index].rows) &&
+              menu[index].rows.length
+            ) {
+              for (let i in menu[index].rows) {
+                if (i !== 'remove') {
+                  if (
+                    !!menu[index].rows[i].title &&
+                    menu[index].rows[i].title.length
+                  ) {
+                    if (
+                      !!menu[index].rows[i].description &&
+                      menu[index].rows[i].description.length
+                    ) {
+                      menu[index].rows[i].rowId = `dessert_${i}`;
+                    } else {
+                      return WAPI.scope(
+                        null,
+                        true,
+                        404,
+                        'Enter the Description variable as an string'
+                      );
+                    }
+                  } else {
+                    return WAPI.scope(
+                      null,
+                      true,
+                      404,
+                      'Enter the Title variable as an string'
+                    );
+                  }
+                }
+              }
+            } else {
+              return WAPI.scope(null, true, 404, 'Rows must be an object array');
+            }
+          } else {
+            return WAPI.scope(null, true, 404, 'Incorrect Title passed in menu');
+          }
+        }
+      }
+    
+		const chat = await window.WAPI.getChat(to);
+	  
+    
+        const newMsgId = await window.WAPI.getNewMessageId(chat.id);
+        const fromwWid = await Store.UserPrefs.getMaybeMeUser();
+        const inChat = await WAPI.getchatId(chat.id).catch(() => {});
+    
+        if (inChat) {
+          chat.lastReceivedKey._serialized = inChat._serialized;
+          chat.lastReceivedKey.id = inChat.id;
+        }
+    
+        const message = {
+          id: newMsgId,
+          ack: 0,
+          from: fromwWid,
+          to: chat.id,
+          local: !0,
+          self: 'out',
+          t: parseInt(new Date().getTime() / 1000),
+          isNewMsg: !0,
+          footer: subTitle,
+          type: 'list',
+          interactiveAnnotations: true,
+          interactiveMessage: true,
+
+          list: {
+            title: title,
+            description: description,
+            buttonText: buttonText,
+            listType: 1,
+            sections: menu
+          }
+        };
+		
+		const chats = WAPI.getChat(to);
+
+		window.WAPI.sendMessageToID(to,message);
+		
+		window.Store.addAndSendMsgToChat(chat, message);
+		
 };
