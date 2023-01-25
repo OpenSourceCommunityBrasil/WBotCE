@@ -3,6 +3,7 @@
 <a href="https://discord.gg/z8Wj7kQX"><img alt="join Discord" src="https://img.shields.io/discord/918891794597544056?color=blue&label=Discord&logo=discord&style=social"></a> <a href="https://t.me/wbotce"><img src="https://img.shields.io/badge/Telegram-join-blue?style=social&logo=telegram"> </a>
 
 [![License](https://img.shields.io/github/license/OpenSourceCommunityBrasil/WBotCE?label=License&style=plastic)](https://github.com/OpenSourceCommunityBrasil/WBotCE/blob/main/LICENSE)
+![GitHub repo size](https://img.shields.io/github/repo-size/OpenSourceCommunityBrasil/WBotCE)
 
 ## Introduction
 
