@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <Package Version="4">
+  <Package Version="5">
     <PathDelim Value="\"/>
     <Name Value="wbotce_pack"/>
     <Type Value="RunAndDesignTime"/>
@@ -17,6 +17,12 @@
           <DebugInfoType Value="dsDwarf2Set"/>
         </Debugging>
       </Linking>
+      <Other>
+        <OtherDefines Count="2">
+          <Define0 Value="wbotce_debug"/>
+          <Define1 Value="wbot_debug"/>
+        </OtherDefines>
+      </Other>
     </CompilerOptions>
     <Files Count="11">
       <Item1>
@@ -66,6 +72,7 @@
         <Type Value="LRS"/>
       </Item11>
     </Files>
+    <CompatibilityMode Value="True"/>
     <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="CEF4Delphi_Lazarus"/>
