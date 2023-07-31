@@ -238,7 +238,7 @@ begin
     begin
       for VMsg in VChat.Messages do
       begin
-        if (Assigned(VMsg)) and (not(VMsg.Sender.IsMe)) then
+        if (Assigned(VMsg)) and (not(VMsg.FromMe)) then
         begin
           LabelCtId.Caption:=VChat.Contact.Id;
           LabelCtName.Caption:=VChat.Contact.Name;
