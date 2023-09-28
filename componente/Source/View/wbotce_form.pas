@@ -90,6 +90,7 @@ type
     procedure SendMsg(const ANumber, AMsg: string);
     procedure SendButtons(const ANumber, AMsg, AButtons, AFooter: string);
     procedure SendMsgBase64(const ANumber, AMsg, AFileName, ACaption: string);
+    procedure ClearChat(const ANumberOrGroupId: string);
   public
     property MyNumber: String read FMyNumber write FMyNumber;
     property Conected: boolean read FConected;
@@ -527,6 +528,15 @@ begin
   VScript := ReplaceVAR(VScript, '<#MSG#>', AMsg); 
   VScript := ReplaceVAR(VScript, '<#FILENAME#>', AFileName);
   VScript := ReplaceVAR(VScript, '<#CAPTION#>', ACaption);
+  ExecuteScript(VScript);
+end;
+
+procedure TWBotCEForm.ClearChat(const ANumberOrGroupId: string);
+var
+  VScript: string;
+begin
+  VScript := CMD_CLEARCHAT;
+  VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumberOrGroupId);
   ExecuteScript(VScript);
 end;
 
