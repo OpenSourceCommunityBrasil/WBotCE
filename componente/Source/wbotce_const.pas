@@ -58,10 +58,11 @@ const
 
   CMD_CHECK_NUMBER_STATUS = 'window.WAPI.checkNumberStatus("<#PHONE#>");';
 
-  CMD_READ_MSG =
-    'window.WAPI.sendSeen("<#PHONE#>")';
+  CMD_READ_MSG     = 'window.WAPI.sendSeen("<#PHONE#>")';
 
-  CMD_GET_MYNUMBER= 'getMyNumber();';
+  CMD_GET_MYNUMBER = 'getMyNumber();';
+
+  CMD_CLEARCHAT    = 'window.WAPI.clearChat("<#PHONE#>");';
 
 resourcestring
   EXCEPT_CEF_APP =

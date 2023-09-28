@@ -1,7 +1,7 @@
 object WBotCEForm: TWBotCEForm
-  Left = 718
+  Left = 720
   Height = 440
-  Top = 186
+  Top = 187
   Width = 656
   Caption = 'WBotCEForm'
   ClientHeight = 440
