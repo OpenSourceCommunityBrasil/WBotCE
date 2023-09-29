@@ -43,12 +43,11 @@
               <StackChecks Value="True"/>
             </Checks>
             <VerifyObjMethodCallValidity Value="True"/>
-            <TargetCPU Value="i386"/>
-            <TargetOS Value="win32"/>
           </CodeGeneration>
           <Linking>
             <Debugging>
               <DebugInfoType Value="dsDwarf2Set"/>
+              <UseHeaptrc Value="True"/>
               <TrashVariables Value="True"/>
               <StripSymbols Value="True"/>
               <UseExternalDbgSyms Value="True"/>
