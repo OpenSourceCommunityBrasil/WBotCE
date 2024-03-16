@@ -1,7 +1,7 @@
 object WBotCEForm: TWBotCEForm
-  Left = 718
+  Left = 720
   Height = 440
-  Top = 186
+  Top = 187
   Width = 656
   Caption = 'WBotCEForm'
   ClientHeight = 440
@@ -11,7 +11,7 @@ object WBotCEForm: TWBotCEForm
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poDesktopCenter
-  LCLVersion = '2.2.0.4'
+  LCLVersion = '2.2.2.0'
   object StatusBar: TStatusBar
     Left = 0
     Height = 23

@@ -1,19 +1,19 @@
 object Form1: TForm1
-  Left = 440
+  Left = 970
   Height = 595
-  Top = 131
-  Width = 1044
+  Top = 233
+  Width = 919
   Caption = 'WBot Demo'
   ClientHeight = 595
-  ClientWidth = 1044
+  ClientWidth = 919
   OnShow = FormShow
   Position = poDesktopCenter
-  LCLVersion = '2.2.2.0'
+  LCLVersion = '2.2.6.0'
   object PageControl1: TPageControl
     Left = 0
     Height = 464
     Top = 64
-    Width = 1044
+    Width = 919
     ActivePage = TabSheet3
     Align = alClient
     ParentFont = False
@@ -22,7 +22,7 @@ object Form1: TForm1
     object TabSheet1: TTabSheet
       Caption = 'bot'
       ClientHeight = 436
-      ClientWidth = 1036
+      ClientWidth = 911
       ParentFont = False
       object GroupBox1: TGroupBox
         Left = 4
@@ -152,13 +152,13 @@ object Form1: TForm1
     object TabSheet3: TTabSheet
       Caption = 'Mensagens'
       ClientHeight = 436
-      ClientWidth = 1036
+      ClientWidth = 911
       ParentFont = False
       object PageControlMsg: TPageControl
         Left = 0
         Height = 436
         Top = 0
-        Width = 1036
+        Width = 911
         ActivePage = TabSheet4
         Align = alClient
         ParentFont = False
@@ -167,7 +167,7 @@ object Form1: TForm1
         object TabSheet2: TTabSheet
           Caption = 'Messages'
           ClientHeight = 408
-          ClientWidth = 1028
+          ClientWidth = 903
           ParentFont = False
           object ButtonCarregaContatos: TButton
             Left = 4
@@ -285,7 +285,7 @@ object Form1: TForm1
         object TabSheet4: TTabSheet
           Caption = 'Messages Grupos'
           ClientHeight = 408
-          ClientWidth = 1028
+          ClientWidth = 903
           ParentFont = False
           object ButtonCarregaGrupos: TButton
             Left = 4
@@ -433,10 +433,10 @@ object Form1: TForm1
     Left = 0
     Height = 64
     Top = 0
-    Width = 1044
+    Width = 919
     Align = alTop
     ClientHeight = 64
-    ClientWidth = 1044
+    ClientWidth = 919
     ParentFont = False
     TabOrder = 1
     object ButtonConecta: TButton
@@ -451,7 +451,7 @@ object Form1: TForm1
       TabOrder = 0
     end
     object LabelStatus: TLabel
-      Left = 964
+      Left = 839
       Height = 15
       Top = 5
       Width = 75
@@ -475,7 +475,7 @@ object Form1: TForm1
       TabOrder = 1
     end
     object Label5: TLabel
-      Left = 922
+      Left = 797
       Height = 15
       Top = 5
       Width = 38
@@ -518,18 +518,18 @@ object Form1: TForm1
     Left = 0
     Height = 67
     Top = 528
-    Width = 1044
+    Width = 919
     Align = alBottom
     Caption = 'Log'
     ClientHeight = 47
-    ClientWidth = 1040
+    ClientWidth = 915
     ParentFont = False
     TabOrder = 2
     object MemoLog: TMemo
       Left = 0
       Height = 47
       Top = 0
-      Width = 1040
+      Width = 915
       Align = alClient
       ParentFont = False
       ScrollBars = ssAutoBoth
