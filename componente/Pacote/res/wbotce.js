@@ -1,7 +1,5 @@
 //Version_JS;Version_TInjectMin;Version_CEF4Min;
-//1.6.0.0;1.0.0.9;78.3.0
-//
-//
+//3.0.4.0;1.0.0.9;78.3.0
 
 function getAllGroupContacts(Contacts) {
 	SetConsoleMessage("GetAllGroupContacts", JSON.stringify(Contacts));	
@@ -57,17 +55,26 @@ function SetConsoleMessage(jsName, resultValue) {
         result: '{"result":' + resultValue + '}'
     }
     console.log(JSON.stringify(Obj));
+	console.clear();
 }
 
 var intervalMonitor;
 var isLoggedStatus = false;
 var gettingUnreadMessages = false;
+var WAVersion;
 
 function startMonitor(intervalSeconds = 0) {
-    isLoggedStatus = WAPI.isLoggedIn();
-	window.WAPI.onIncomingCall();
+    if (intervalMonitor) {
+        clearInterval(intervalMonitor);
+    }
 	
-    if (intervalSeconds >= 1) {
+	isLoggedStatus = WAPI.isLoggedIn();
+	window.WAPI.onIncomingCall();
+	window.WAPI.onGetUnReadMessageFromMe();
+	WAVersion = WAPI.getWAVersion();
+	WAVersion = WAVersion.replace(/\./g, '');
+    
+	if (intervalSeconds >= 1) {
         intervalMonitor = window.setInterval(monitorUnReadMessages, intervalSeconds * 1000);
     }
 }
@@ -112,101 +119,367 @@ function monitorUnReadMessages() {
     gettingUnreadMessages = false;
 }
 
-if (!window.Store||!window.Store.Msg) {
+const fixObjectsStore = () => {
+	try {
+		console.log('fixObjectsStore start')
+
+		if (!window.Store.Chat._find || !window.Store.Chat.findImpl) {
+			window.Store.Chat._find = e => {
+				const target = window.Store.Chat.get(e);
+				return target ? Promise.resolve(target) : Promise.resolve({
+					id: e
+				});
+			};
+			window.Store.Chat.findImpl = window.Store.Chat._find;
+		}
+	} catch (error) {
+		console.log('Error in function fixObjectsStore', error)
+	}
+}
+
+const newMakeStore = () => {
+  if (!window.Store) {
+    console.log("New script", "TInject Community")
+    let modules = self.require('__debug').modulesMap;
+    let keys = Object.keys(modules).filter(e=>e.includes("WA"));
+    let modulesFactory = {};
+    for (let key of keys){
+        if(!modules[key])
+            continue;
+        let module = modules[key];
+        modulesFactory[key] = {
+            default: module.defaultExport,
+            factory: module.factory,
+            ...module
+        };
+        if(Object.keys(modulesFactory[key].default).length == 0) {
+            try{
+                self.ErrorGuard.skipGuardGlobal(true);
+                Object.assign(modulesFactory[key], self.importNamespace(key));
+            }catch(e){
+				//
+            }
+        }
+    }
+
+    function getStore(modules) {
+        let foundCount = 0;
+        let neededObjects = [
+            { id: "Store", conditions: (module) => (module.default && module.default.Chat && module.default.Msg) ? module.default : null},
+			{ id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && (module.default.prototype.processFiles !== undefined||module.default.prototype.processAttachments !== undefined)) ? module.default : null },
+			{ id: "Conn", conditions: (module) => (module.default && module.default.ref && module.default.refTTL) ? module.default : (module.Conn ? module.Conn : null)},
+			{ id: "MediaProcess", conditions: (module) => (module.BLOB) ? module : null },
+			{ id: "Archive", conditions: (module) => (module.setArchive) ? module : null },
+			{ id: "Block", conditions: (module) => (module.blockContact && module.unblockContact) ? module : null },
+			{ id: "ChatUtil", conditions: (module) => (module.sendClear) ? module : null },
+			{ id: "GroupInvite", conditions: (module) => (module.sendQueryGroupInviteCode ) ? module : null },
+			{ id: "Wap", conditions: (module) => (module.createGroup) ? module : null },
+			{ id: "ServiceWorker", conditions: (module) => (module.default && module.default.killServiceWorker) ? module : null },
+			{ id: "State", conditions: (module) => (module.STATE && module.STREAM) ? module : null },
+			{ id: "_Presence", conditions: (module) => (module.setPresenceAvailable && module.setPresenceUnavailable) ? module : null },
+			{ id: "WapDelete", conditions: (module) => (module.sendConversationDelete && module.sendConversationDelete.length == 2) ? module : null },
+			{ id: 'FindChat', conditions: (module) => (module && module.findOrCreateLatestChat) ? module : null},
+			{ id: "WapQuery", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },
+			{ id: "WapQueryMD", conditions: (module) => (module.queryExists && module.queryPhoneExists) || (module.queryWidExists && module.queryPhoneExists) ? module : null},
+			{ id: 'Perfil', conditions: (module) => module.__esModule === true && module.setPushname && !module.getComposeContents ? module : null},
+			{ id: "CryptoLib", conditions: (module) => (module.decryptE2EMedia) ? module : null },
+			{ id: "OpenChat", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.openChat) ? module.default : null },
+			{ id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null },
+			{ id: "SendTextMsgToChat", conditions: (module) => (module.sendTextMsgToChat) ? module.sendTextMsgToChat : null },
+			{ id: "ReadSeen", conditions: (module) => (module.sendSeen) ? module : null },
+			{ id: "sendDelete", conditions: (module) => (module.sendDelete) ? module.sendDelete : null },
+			{ id: "addAndSendMsgToChat", conditions: (module) => (module.addAndSendMsgToChat) ? module.addAndSendMsgToChat : null },
+			{ id: "sendMsgToChat", conditions: (module) => (module.sendMsgToChat) ? module.sendMsgToChat : null },
+			{ id: "Catalog", conditions: (module) => (module.Catalog) ? module.Catalog : null },
+			{ id: "bp", conditions: (module) => (module.default && module.default.toString && module.default.toString().includes('bp_unknown_version')) ? module.default : null },
+			{ id: "MsgKey", conditions: (module) => (module.default && module.default.toString && module.default.toString().includes('MsgKey error: obj is null/undefined')) ? module.default : null },
+			{ id: "Parser", conditions: (module) => (module.convertToTextWithoutSpecialEmojis) ? module.default : null },
+			{ id: "Builders", conditions: (module) => (module.TemplateMessage && module.HydratedFourRowTemplate) ? module : null },
+			{ id: "Me", conditions: (module) => (module.PLATFORMS && module.Conn) ? module.default : null },
+			{ id: "CallUtils", conditions: (module) => (module.sendCallEnd && module.parseCall) ? module : null },
+			{ id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
+			{ id: "MyStatus", conditions: (module) => (module.getStatus && module.setMyStatus) ? module : null },							
+			{ id: "GroupActions", conditions: (module) => (module.sendExitGroup && module.localExitGroup) ? module : null },
+			{ id: "Features", conditions: (module) => (module.FEATURE_CHANGE_EVENT && module.features) ? module : null },
+			{ id: "MessageUtils", conditions: (module) => (module.storeMessages && module.appendMessage) ? module : null },
+			{ id: "WebMessageInfo", conditions: (module) => (module.WebMessageInfo && module.WebFeatures) ? module.WebMessageInfo : null },
+			{ id: "createMessageKey", conditions: (module) => (module.createMessageKey && module.createDeviceSentMessage) ? module.createMessageKey : null },
+			{ id: "Participants", conditions: (module) => (module.addParticipants && module.removeParticipants && module.promoteParticipants && module.demoteParticipants) ? module : null },
+			{ id: "Base", conditions: (module) => (module.setSubProtocol && module.binSend && module.actionNode) ? module : null },
+			{ id: "Versions", conditions: (module) => (module.loadProtoVersions && module.default && module.default["15"] && module.default["16"] && module.default["17"]) ? module : null },
+			{ id: "Sticker", conditions: (module) => (module.default && module.default.Sticker) ? module.default.Sticker : null },
+			{ id: "MediaUpload", conditions: (module) => (module.default && module.default.mediaUpload) ? module.default : null },
+			{ id: "UploadUtils", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null },
+			{ id: "linkPreview", conditions: (module) => (module.linkPreviewFromContactModel ? module : null)},
+			{ id: 'Vcard', conditions: (module) => (module.vcardFromContactModel ? module : null)},
+			{ id: 'Clock', conditions: (module) => (module.Clock ? module.Clock : null)},
+			{ id: 'TemplateButtonCollection', conditions: (module) => (module.TemplateButtonCollectionImpl || module.TemplateButtonCollection ? module.TemplateButtonCollection : null)},
+			{ id: 'ButtonCollection', conditions: (module) => (module.ButtonCollectionImpl || module.ButtonCollection ? module.ButtonCollection : null)},
+			{ id: "MdCheck",	conditions: (module) => (module && module.isLegacyWebdBackend) ? module : null},
+			{ id: "FeatureChecker", conditions: (module) => (module && module.getProtobufFeatureName) ? module : null },
+			{ id: "GetMaybeMeUser", conditions: (module) => (module && module.getMaybeMeUser) ? module : null },
+			{ id: "QueryExist", conditions: (module) => (module.queryExist) ? module : null },
+			{ id: "OpenChat", conditions: (module) => (module.OpenChatFlow) ? module.OpenChatFlow : null },
+			{ id: "ChatUtilsSetArchive", conditions: (module) => (module.setArchive) ? module : null },
+			{ id: "ChatState", conditions: (module) => (module.sendChatStateComposing) ? module : null },
+			{ id: "WidFactory", conditions: (module) => (module.createWid) ? module : null },
+			{ id: "isMDBackend", conditions: (module) => (module.isMDBackend) ? module : null },
+			{ id: "PresenceUtils", conditions: (module) => (module.sendPresenceAvailable) ? module : null },
+			{ id: "MediaPrep", conditions: (module) => (module && module.uploadProductImage && module.MediaPrep) ? module : null },
+			{ id: "EventEmitter", conditions: (module) => (module.default && module.default.toString && module.default.toString().includes('Callback parameter passed is not a function')) ? module.default : null}, 
+            { id: "MediaTypeFromProtobufModule", conditions: (module) => (module.mediaTypeFromProtobuf) ? module : null}, 
+            { id: "TypeAttributeFromProtobufModule", conditions: (module) => (module.typeAttributeFromProtobuf) ? module : null},  
+            { id: "ChatModel", conditions: (m) => {
+                    var _a, _b, _c, _d, _e, _f;
+                    const name = 'ChatModel', baseName = 'Chat', names = [baseName, baseName.replace(/^(\w)/, (l) => l.toLowerCase())]
+                    if(names.includes(((_b = (_a = m.default) === null || _a === void 0 ? void 0 : _a.prototype) === null || _b === void 0 ? void 0 : _b.proxyName) ||
+                        ((_d = (_c = m[name]) === null || _c === void 0 ? void 0 : _c.prototype) === null || _d === void 0 ? void 0 : _d.proxyName) ||
+                        ((_f = (_e = m[baseName]) === null || _e === void 0 ? void 0 : _e.prototype) === null || _f === void 0 ? void 0 : _f.proxyName)))
+                        {
+                            return m.Chat;
+                        }
+                        return null;
+            }},
+            { id: "ContactModel", conditions: (m) => {
+                    var _a, _b, _c, _d, _e, _f;
+                    const name = 'ContactModel', baseName = 'Contact', names = [baseName, baseName.replace(/^(\w)/, (l) => l.toLowerCase())]
+                    if(names.includes(((_b = (_a = m.default) === null || _a === void 0 ? void 0 : _a.prototype) === null || _b === void 0 ? void 0 : _b.proxyName) ||
+                        ((_d = (_c = m[name]) === null || _c === void 0 ? void 0 : _c.prototype) === null || _d === void 0 ? void 0 : _d.proxyName) ||
+                        ((_f = (_e = m[baseName]) === null || _e === void 0 ? void 0 : _e.prototype) === null || _f === void 0 ? void 0 : _f.proxyName)))
+                        {
+                            return m.default;
+                        }
+                        return null;
+            }},
+        ];
+        
+		window.findModule = function (searchMod) {
+                for (let idx in modules) {
+                    if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
+                        const keys = Object.keys(modules[idx]);
+                        const src_ = keys.find(k => k.includes(searchMod));
+                        if (src_) {
+                            console.log(modules[idx])
+                        }
+                    }
+                }
+        }
+		
+		
+		
+		for (let idx in modules) {
+            if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
+                neededObjects.forEach((needObj) => {
+                    if (!needObj.conditions || needObj.foundedModule)
+                        return;
+                    let neededModule = needObj.conditions(modules[idx]);
+                    if (neededModule !== null) {
+                        foundCount++;
+                        needObj.foundedModule = neededModule;
+                    }
+                });
+    
+                if (foundCount == neededObjects.length) {
+                    break;
+                }
+            }
+        }
+    
+        let neededStore = neededObjects.find((needObj) => needObj.id === "Store");
+        window.Store = neededStore.foundedModule ? neededStore.foundedModule : {};
+        neededObjects.splice(neededObjects.indexOf(neededStore), 1);
+        neededObjects.forEach((needObj) => {
+            if (needObj.foundedModule) {
+                window.Store[needObj.id] = needObj.foundedModule;
+            }
+        });
+
+        window.Store.Chat.modelClass.prototype.sendMessage = function (e) {
+            window.Store.SendTextMsgToChat(this, ...arguments);
+        }
+        //console.log(window.Store)
+        return window.Store;
+    }
+	
+    getStore(modulesFactory);
+	fixObjectsStore();
+  }
+}
+
+const oldMakeStore = () => {
+  console.log("Old script, TInject Community ", (Debug || {}).VERSION)
+  if (!window.Store) {
     (function () {
         function getStore(modules) {
-            let foundCount = 0;
-            let neededObjects = [
+        let foundCount = 0;
+        let neededObjects = [
                 { id: "Store", conditions: (module) => (module.default && module.default.Chat && module.default.Msg) ? module.default : null},
 				{ id: "Conn", conditions: (module) => (module.default && module.default.ref && module.default.refTTL) ? module.default : (module.Conn ? module.Conn : null)},
-                { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && (module.default.prototype.processFiles !== undefined||module.default.prototype.processAttachments !== undefined)) ? module.default : null },
-                { id: "MediaProcess", conditions: (module) => (module.BLOB) ? module : null },
-                { id: "Archive", conditions: (module) => (module.setArchive) ? module : null },
-                { id: "Block", conditions: (module) => (module.blockContact && module.unblockContact) ? module : null },
-                { id: "ChatUtil", conditions: (module) => (module.sendClear) ? module : null },
+				{ id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && (module.default.prototype.processFiles !== undefined||module.default.prototype.processAttachments !== undefined)) ? module.default : null },
+				{ id: "MediaProcess", conditions: (module) => (module.BLOB) ? module : null },
+				{ id: "Archive", conditions: (module) => (module.setArchive) ? module : null },
+				{ id: "Block", conditions: (module) => (module.blockContact && module.unblockContact) ? module : null },
+				{ id: "ChatUtil", conditions: (module) => (module.sendClear) ? module : null },
 				{ id: "GroupInvite", conditions: (module) => (module.sendQueryGroupInviteCode ) ? module : null },
-                { id: "Wap", conditions: (module) => (module.createGroup) ? module : null },
-                { id: "ServiceWorker", conditions: (module) => (module.default && module.default.killServiceWorker) ? module : null },
-                { id: "State", conditions: (module) => (module.STATE && module.STREAM) ? module : null },
-                { id: "_Presence", conditions: (module) => (module.setPresenceAvailable && module.setPresenceUnavailable) ? module : null },
-                { id: "WapDelete", conditions: (module) => (module.sendConversationDelete && module.sendConversationDelete.length == 2) ? module : null },
-                { id: 'FindChat', conditions: (module) => (module && module.findChat) ? module : null},				
-				{ id: "WapQuery", conditions: (module) => (module.default && module.default.queryExist) ? module.default : null },				
-				{ id: "WapQueryMD", conditions: (module) => module.queryExists && module.queryPhoneExists ? module : null},
+				{ id: "Wap", conditions: (module) => (module.createGroup) ? module : null },
+				{ id: "ServiceWorker", conditions: (module) => (module.default && module.default.killServiceWorker) ? module : null },
+				{ id: "State", conditions: (module) => (module.STATE && module.STREAM) ? module : null },
+				{ id: "_Presence", conditions: (module) => (module.setPresenceAvailable && module.setPresenceUnavailable) ? module : null },
+				{ id: "WapDelete", conditions: (module) => (module.sendConversationDelete && module.sendConversationDelete.length == 2) ? module : null },
+				{ id: 'FindChat', conditions: (module) => (module && module.findOrCreateLatestChat) ? module : null},
+				{ id: "WapQuery", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },
+				{ id: "WapQueryMD", conditions: (module) => (module.queryExists && module.queryPhoneExists) || (module.queryWidExists && module.queryPhoneExists) ? module : null},
 				{ id: 'Perfil', conditions: (module) => module.__esModule === true && module.setPushname && !module.getComposeContents ? module : null},
 				{ id: "CryptoLib", conditions: (module) => (module.decryptE2EMedia) ? module : null },
-                { id: "OpenChat", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.openChat) ? module.default : null },
-                { id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null },
-                { id: "SendTextMsgToChat", conditions: (module) => (module.sendTextMsgToChat) ? module.sendTextMsgToChat : null },
-                { id: "ReadSeen", conditions: (module) => (module.sendSeen) ? module : null },
-                { id: "sendDelete", conditions: (module) => (module.sendDelete) ? module.sendDelete : null },
-                { id: "addAndSendMsgToChat", conditions: (module) => (module.addAndSendMsgToChat) ? module.addAndSendMsgToChat : null },
-                { id: "sendMsgToChat", conditions: (module) => (module.sendMsgToChat) ? module.sendMsgToChat : null },
-                { id: "Catalog", conditions: (module) => (module.Catalog) ? module.Catalog : null },
-                { id: "bp", conditions: (module) => (module.default&&module.default.toString&&module.default.toString().includes('bp_unknown_version')) ? module.default : null },
-                { id: "MsgKey", conditions: (module) => (module.default&&module.default.toString&&module.default.toString().includes('MsgKey error: obj is null/undefined')) ? module.default : null },
-                { id: "Parser", conditions: (module) => (module.convertToTextWithoutSpecialEmojis) ? module.default : null },
-                { id: "Builders", conditions: (module) => (module.TemplateMessage && module.HydratedFourRowTemplate) ? module : null },
-                { id: "Me", conditions: (module) => (module.PLATFORMS && module.Conn) ? module.default : null },
-                { id: "CallUtils", conditions: (module) => (module.sendCallEnd && module.parseCall) ? module : null },
-                { id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
-                { id: "MyStatus", conditions: (module) => (module.getStatus && module.setMyStatus) ? module : null },                
-				{ id: "ChatStates", conditions: (module) => (module.sendChatStatePaused && module.sendChatStateRecording && module.sendChatStateComposing) ? module : null },				
-                { id: "GroupActions", conditions: (module) => (module.sendExitGroup && module.localExitGroup) ? module : null },
-                { id: "Features", conditions: (module) => (module.FEATURE_CHANGE_EVENT && module.features) ? module : null },
-                { id: "MessageUtils", conditions: (module) => (module.storeMessages && module.appendMessage) ? module : null },
-                { id: "WebMessageInfo", conditions: (module) => (module.WebMessageInfo && module.WebFeatures) ? module.WebMessageInfo : null },
-                { id: "createMessageKey", conditions: (module) => (module.createMessageKey && module.createDeviceSentMessage) ? module.createMessageKey : null },
-                { id: "Participants", conditions: (module) => (module.addParticipants && module.removeParticipants && module.promoteParticipants && module.demoteParticipants) ? module : null },
-                { id: "WidFactory", conditions: (module) => (module.isWidlike && module.createWid && module.createWidFromWidLike) ? module : null },
-                { id: "Base", conditions: (module) => (module.setSubProtocol && module.binSend && module.actionNode) ? module : null },
-   				{ id: "Versions", conditions: (module) => (module.loadProtoVersions && module.default && module.default["15"] && module.default["16"] && module.default["17"]) ? module : null },
-		        { id: "Sticker", conditions: (module) => (module.default && module.default.Sticker) ? module.default.Sticker : null },
-                { id: "MediaUpload", conditions: (module) => (module.default && module.default.mediaUpload) ? module.default : null },
-                { id: "UploadUtils", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null },
-				{ id: 'UserPrefs', conditions: (module) => (module.getMaybeMeUser ? module : null), },
-                { id: 'Vcard', conditions: (module) => (module.vcardFromContactModel ? module : null)},
+				{ id: "OpenChat", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.openChat) ? module.default : null },
+				{ id: "UserConstructor", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.isServer && module.default.prototype.isUser) ? module.default : null },
+				{ id: "SendTextMsgToChat", conditions: (module) => (module.sendTextMsgToChat) ? module.sendTextMsgToChat : null },
+				{ id: "ReadSeen", conditions: (module) => (module.sendSeen) ? module : null },
+				{ id: "sendDelete", conditions: (module) => (module.sendDelete) ? module.sendDelete : null },
+				{ id: "addAndSendMsgToChat", conditions: (module) => (module.addAndSendMsgToChat) ? module.addAndSendMsgToChat : null },
+				{ id: "sendMsgToChat", conditions: (module) => (module.sendMsgToChat) ? module.sendMsgToChat : null },
+				{ id: "Catalog", conditions: (module) => (module.Catalog) ? module.Catalog : null },
+				{ id: "bp", conditions: (module) => (module.default && module.default.toString && module.default.toString().includes('bp_unknown_version')) ? module.default : null },
+				{ id: "MsgKey", conditions: (module) => (module.default && module.default.toString && module.default.toString().includes('MsgKey error: obj is null/undefined')) ? module.default : null },
+				{ id: "Parser", conditions: (module) => (module.convertToTextWithoutSpecialEmojis) ? module.default : null },
+				{ id: "Builders", conditions: (module) => (module.TemplateMessage && module.HydratedFourRowTemplate) ? module : null },
+				{ id: "Me", conditions: (module) => (module.PLATFORMS && module.Conn) ? module.default : null },
+				{ id: "CallUtils", conditions: (module) => (module.sendCallEnd && module.parseCall) ? module : null },
+				{ id: "Identity", conditions: (module) => (module.queryIdentity && module.updateIdentity) ? module : null },
+				{ id: "MyStatus", conditions: (module) => (module.getStatus && module.setMyStatus) ? module : null },							
+				{ id: "GroupActions", conditions: (module) => (module.sendExitGroup && module.localExitGroup) ? module : null },
+				{ id: "Features", conditions: (module) => (module.FEATURE_CHANGE_EVENT && module.features) ? module : null },
+				{ id: "MessageUtils", conditions: (module) => (module.storeMessages && module.appendMessage) ? module : null },
+				{ id: "WebMessageInfo", conditions: (module) => (module.WebMessageInfo && module.WebFeatures) ? module.WebMessageInfo : null },
+				{ id: "createMessageKey", conditions: (module) => (module.createMessageKey && module.createDeviceSentMessage) ? module.createMessageKey : null },
+				{ id: "Participants", conditions: (module) => (module.addParticipants && module.removeParticipants && module.promoteParticipants && module.demoteParticipants) ? module : null },
+				{ id: "Base", conditions: (module) => (module.setSubProtocol && module.binSend && module.actionNode) ? module : null },
+				{ id: "Versions", conditions: (module) => (module.loadProtoVersions && module.default && module.default["15"] && module.default["16"] && module.default["17"]) ? module : null },
+				{ id: "Sticker", conditions: (module) => (module.default && module.default.Sticker) ? module.default.Sticker : null },
+				{ id: "MediaUpload", conditions: (module) => (module.default && module.default.mediaUpload) ? module.default : null },
+				{ id: "UploadUtils", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null },
+				{ id: "linkPreview", conditions: (module) => (module.linkPreviewFromContactModel ? module : null)},
+				{ id: 'Vcard', conditions: (module) => (module.vcardFromContactModel ? module : null)},
 				{ id: 'Clock', conditions: (module) => (module.Clock ? module.Clock : null)},
-                { id: 'TemplateButtonCollection', conditions: (module) => (module.TemplateButtonCollectionImpl || module.TemplateButtonCollection ? module.TemplateButtonCollection : null)},
-                { id: 'ButtonCollection', conditions: (module) => (module.ButtonCollectionImpl || module.ButtonCollection ? module.ButtonCollection : null)},
+				{ id: 'TemplateButtonCollection', conditions: (module) => (module.TemplateButtonCollectionImpl || module.TemplateButtonCollection ? module.TemplateButtonCollection : null)},
+				{ id: 'ButtonCollection', conditions: (module) => (module.ButtonCollectionImpl || module.ButtonCollection ? module.ButtonCollection : null)},
+				{ id: "MdCheck",	conditions: (module) => (module && module.isLegacyWebdBackend) ? module : null},
+				{ id: "FeatureChecker", conditions: (module) => (module && module.getProtobufFeatureName) ? module : null },
+				{ id: "GetMaybeMeUser", conditions: (module) => (module && module.getMaybeMeUser) ? module : null },
+				{ id: "QueryExist", conditions: (module) => (module.queryExist) ? module : null },
+				{ id: "OpenChat", conditions: (module) => (module.OpenChatFlow) ? module.OpenChatFlow : null },
+				{ id: "ChatUtilsSetArchive", conditions: (module) => (module.setArchive) ? module : null },
+				{ id: "ChatState", conditions: (module) => (module.sendChatStateComposing) ? module : null },
+				{ id: "WidFactory", conditions: (module) => (module.createWid) ? module : null },
+				{ id: "isMDBackend", conditions: (module) => (module.isMDBackend) ? module : null },
+				{ id: "PresenceUtils", conditions: (module) => (module.sendPresenceAvailable) ? module : null },
+				{ id: "MediaPrep", conditions: (module) => (module && module.uploadProductImage && module.MediaPrep) ? module : null },
+				{ id: "EventEmitter", conditions: (module) => (module.default && module.default.toString && module.default.toString().includes('Callback parameter passed is not a function')) ? module.default : null}, 
+                { id: "MediaTypeFromProtobufModule", conditions: (module) => (module.mediaTypeFromProtobuf) ? module : null}, 
+                { id: "TypeAttributeFromProtobufModule", conditions: (module) => (module.typeAttributeFromProtobuf) ? module : null},  
+                { id: "ChatModel", conditions: (m) => {
+                    var _a, _b, _c, _d, _e, _f;
+                    const name = 'ChatModel', baseName = 'Chat', names = [baseName, baseName.replace(/^(\w)/, (l) => l.toLowerCase())]
+                    if(names.includes(((_b = (_a = m.default) === null || _a === void 0 ? void 0 : _a.prototype) === null || _b === void 0 ? void 0 : _b.proxyName) ||
+                        ((_d = (_c = m[name]) === null || _c === void 0 ? void 0 : _c.prototype) === null || _d === void 0 ? void 0 : _d.proxyName) ||
+                        ((_f = (_e = m[baseName]) === null || _e === void 0 ? void 0 : _e.prototype) === null || _f === void 0 ? void 0 : _f.proxyName)))
+                        {
+                            return m.Chat;
+                        }
+                        return null;
+                }},
+                { id: "ContactModel", conditions: (m) => {
+                    var _a, _b, _c, _d, _e, _f;
+                    const name = 'ContactModel', baseName = 'Contact', names = [baseName, baseName.replace(/^(\w)/, (l) => l.toLowerCase())]
+                    if(names.includes(((_b = (_a = m.default) === null || _a === void 0 ? void 0 : _a.prototype) === null || _b === void 0 ? void 0 : _b.proxyName) ||
+                        ((_d = (_c = m[name]) === null || _c === void 0 ? void 0 : _c.prototype) === null || _d === void 0 ? void 0 : _d.proxyName) ||
+                        ((_f = (_e = m[baseName]) === null || _e === void 0 ? void 0 : _e.prototype) === null || _f === void 0 ? void 0 : _f.proxyName)))
+                        {
+                            return m.default;
+                        }
+                        return null;
+                }},
             ];
-            for (let idx in modules) {
-            	if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
-                    neededObjects.forEach((needObj) => {
-                    	if (!needObj.conditions || needObj.foundedModule)
-                            return;
-                    	let neededModule = needObj.conditions(modules[idx]);
-                    	if (neededModule !== null) {
-                            foundCount++;
-                            needObj.foundedModule = neededModule;
-                    	}
-		    });
-
-                    if (foundCount == neededObjects.length) {
-                    	break;
+			
+		window.findModule = function (searchMod) {
+                for (let idx in modules) {
+                    if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
+                        const keys = Object.keys(modules[idx]);
+                        const src_ = keys.find(k => k.includes(searchMod));
+                        if (src_) {
+                            console.log(modules[idx])
+                        }
                     }
-            	}
-            }
-	    let neededStore = neededObjects.find((needObj) => needObj.id === "Store");
-            window.Store = neededStore.foundedModule ? neededStore.foundedModule : {};
-            neededObjects.splice(neededObjects.indexOf(neededStore), 1);
-            neededObjects.forEach((needObj) => {
-                if (needObj.foundedModule) {
-                    window.Store[needObj.id] = needObj.foundedModule;
                 }
-            });
-	    window.Store.Chat.modelClass.prototype.sendMessage = function (e) {
-		window.Store.SendTextMsgToChat(this, ...arguments);
-	    }
-            return window.Store;
-    	}
-        const parasite = `parasite${Date.now()}`
-
-        if (typeof webpackJsonp === 'function') webpackJsonp([], {[parasite]: (x, y, z) => getStore(z)}, [parasite]); 
-		else webpackChunkwhatsapp_web_client.push([[parasite], {}, function (o, e, t) {let modules = []; for (let idx in o.m) {modules.push(o(idx));}	getStore(modules);}]);
+            }
         
+		for (let idx in modules) {
+            if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {
+                neededObjects.forEach((needObj) => {
+                    if (!needObj.conditions || needObj.foundedModule)
+                        return;
+                    let neededModule = needObj.conditions(modules[idx]);
+                    if (neededModule !== null) {
+                        foundCount++;
+                        needObj.foundedModule = neededModule;
+                    }
+                });
+
+                if (foundCount == neededObjects.length) {
+                    break;
+                }
+            }
+        }
+
+        let neededStore = neededObjects.find((needObj) => needObj.id === "Store");
+        window.Store = neededStore.foundedModule ? neededStore.foundedModule : {};
+        neededObjects.splice(neededObjects.indexOf(neededStore), 1);
+        neededObjects.forEach((needObj) => {
+            if (needObj.foundedModule) {
+                window.Store[needObj.id] = needObj.foundedModule;
+            }
+        });
+        
+        window.Store.Chat.modelClass.prototype.sendMessage = function (e) {
+            window.Store.SendTextMsgToChat(this, ...arguments);
+        }       
+        
+        return window.Store;
+    }
+
+        if (typeof webpackJsonp === 'function') {
+            webpackJsonp([], {'parasite': (x, y, z) => getStore(z)}, ['parasite']);
+        } else {
+            let tag = new Date().getTime();
+            webpackChunkwhatsapp_web_client.push([
+                ["parasite" + tag],
+                {
+
+                },
+                function (o, e, t) {
+                    let modules = [];
+                    for (let idx in o.m) {
+                        let module = o(idx);
+                        modules.push(module);
+                    }
+                    getStore(modules);
+                }
+            ]);
+        }
+
     })();
+  }
 }
+
+
+const chooseFunction = () => {
+  versionString = (Debug || {}).VERSION;
+  versionNumber = parseFloat(versionString);
+  comparisonNumber = 2.3;
+    return (versionNumber >= comparisonNumber) ? newMakeStore() : oldMakeStore()
+}
+
+chooseFunction();
  
 window.WAPI = {};
 window._WAPI = {};
@@ -272,14 +545,13 @@ window.WAPI._serializeMessageObj = (obj) => {
 
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         id: obj.id._serialized,
-        //add 02/06/2020 mike -->
+
 		quotedParticipant: obj.quotedParticipant? obj.quotedParticipant._serialized ? obj.quotedParticipant._serialized : undefined : undefined,
         author: obj.author? obj.author._serialized ? obj.author._serialized : undefined : undefined,
         chatId: obj.chatId? obj.chatId._serialized ? obj.chatId._serialized : undefined : undefined,
         to: obj.to? obj.to._serialized ? obj.to._serialized : undefined : undefined,
         fromMe: obj.id.fromMe,
-		//add 02/06/2020 mike <--
-		
+        
 		sender: obj["senderObj"] ? WAPI._serializeContactObj(obj["senderObj"]) : null,
         timestamp: obj["t"],
         content: obj["body"],
@@ -333,7 +605,6 @@ window.WAPI._serializeNumberStatusObjMD = (obj) => {
     return Object.assign({}, {
         id: obj.wid,
         status: awid	
-        //isBusiness: (obj.biz === true)
     });
 };
 
@@ -346,19 +617,82 @@ window.WAPI._serializeProfilePicThumb = (obj) => {
         eurl: obj.eurl,
         id: obj.id,
         img: obj.img,
-        //imgFull: obj.imgFull,
 		imgFull: obj.__x_imgFull,
         raw: obj.raw,
         tag: obj.tag
     });
 }
 
-window.WAPI.createGroup = async function (name, contactsId) {
-    if (!Array.isArray(contactsId)) {
-        contactsId = [contactsId];
-    }
+const sendCreateGroup = async (groupName, participants) => {
+    return await Store.Wap.createGroup(groupName, participants).then((e) => ({
+        gid: e.wid,
+        participants: e.participants.map((e) => ({
+            userWid: e.wid,
+            code: null != e.error ? e.error.toString() : '200',
+            invite_code: e.invite_code,
+            invite_code_exp: e.invite_code_exp,
+        })),
+    }));
+}
 
-    return await window.Store.WapQuery.createGroup(name, contactsId);;
+window.WAPI.createGroup = async function (groupName, participantsIds) {
+    var _a;
+    if (!Array.isArray(participantsIds)) {
+        participantsIds = [participantsIds];
+    }
+    const participantsWids = participantsIds.map(assertWid);
+    const meWid = Store.UserPrefs.getMaybeMeUser();
+    const wids = [];
+    for (const wid of participantsWids) {
+        if (meWid.equals(wid)) {
+            continue;
+        }
+        const contact = Store.Contact.get(wid);
+        if (contact) {
+            wids.push(contact.id);
+            continue;
+        }
+        const info = await Store.WapQueryMD.queryExists(wid);
+        if (!info) {
+            throw new Error('Participant not exists, id:' + wid);
+        }
+        if (meWid.equals(info.wid)) {
+            continue;
+        }
+        wids.push(info.wid);
+    }
+    const result = await sendCreateGroup(groupName, wids);
+
+    const participants = {};
+    for (const r of result.participants || []) {
+        let userWid = null;
+        let code = null;
+        let invite_code = null;
+        let invite_code_exp = null;
+        if ('userWid' in r) {
+            userWid = r.userWid.toString();
+            code = r.code;
+            invite_code = r.invite_code;
+            invite_code_exp = r.invite_code_exp;
+        }
+        else {
+            userWid = Object.keys(r)[0];
+            const d = r[userWid];
+            code = d.code;
+            invite_code = d.invite_code;
+            invite_code_exp = d.invite_code_exp;
+        }
+        participants[userWid] = {
+            wid: userWid,
+            code: Number(code),
+            invite_code: invite_code,
+            invite_code_exp: Number(invite_code_exp) || null,
+        };
+    }
+    return {
+        gid: result.gid,
+        participants,
+    };
 };
 
 window.WAPI.leaveGroup = function(groupId) {
@@ -456,7 +790,7 @@ window.WAPI.getAllNewMessages = async function () {
  * @returns {Array|*} List of chats
  */
  
- 
+/*Deprecated 
 window.WAPI.getAllGroups = function(done) {
     let groups = window.Store.Chat.filter((chat) => chat.isGroup);
 
@@ -470,9 +804,39 @@ window.WAPI.getAllGroups = function(done) {
 	})
 	
 	SetConsoleMessage("getAllGroups", JSON.stringify(arrGroups));
-	
-	//return groups;
-}; 
+}; */
+
+window.WAPI.getAllGroups = function(done) {
+    // Verifica se window.Store e GroupMetadata estão definidos
+    if (!window.Store || !window.Store.GroupMetadata) {
+        console.error("Não foi possível acessar os grupos. Verifique se o objeto Store está definido.");
+        return; // Sai da função caso os dados não estejam disponíveis
+    }
+
+    // Atribui o valor de GroupMetadata, garantindo que não seja null ou undefined
+    let groups = window.Store.GroupMetadata || [];
+
+    // Verifica se groups está vazio
+    if (groups.length === 0) {
+        console.warn("Nenhum grupo encontrado.");
+        return; // Sai da função se não houver grupos
+    }
+
+    // Criação da lista de grupos, com segurança contra valores inesperados
+    const listGroups = groups.map(group => ({
+        id: group.id || "ID não disponível",  // Valor de fallback caso id não exista
+        subject: group.subject || "Sem título" // Valor de fallback caso subject não exista
+    }));
+
+    // Se a função 'done' for fornecida, chama-a com a lista de grupos
+    if (done !== undefined) {
+        done(listGroups);
+    }
+
+    // Exibe o resultado no console
+    //console.log(JSON.stringify(listGroups));
+	SetConsoleMessage("getAllGroups", JSON.stringify(listGroups));
+};
 
 //01/06/2020
 window.WAPI.getAllGroupsList = function(done) {
@@ -533,7 +897,7 @@ window.WAPI.getChat = function (id) {
 }
 
 window.WAPI.getChatByName = function(name, done) {
-    const found = window.Store.FindChat.findChat((chat) => chat.name === name);
+    const found = window.Store.FindChat.findOrCreateLatestChat((chat) => chat.name === name);
     if (done !== undefined) done(found);
     return found;
 };
@@ -595,7 +959,7 @@ window.WAPI.sendLinkWithAutoPreview = async function (chatId, url, text) {
 	const linkPreview =  await Store.WapQuery.queryLinkPreview(url)
 
     let queue = await Store.Contact.get(chatId);
-    const contact = await Store.FindChat.findChat(idUser)
+    const contact = await Store.FindChat.findOrCreateLatestChat(idUser)
     const newChat = await Object.assign(queue, contact);
 
     
@@ -814,21 +1178,6 @@ window.WAPI.getAllGroupMetadata = function(done) {
  * @param done Optional callback function for async execution
  * @returns {T|*} Group metadata object
  */
- 
-/* Deprecated 02/06/2020
-window.WAPI.getGroupMetadata = async function(id, done) {
-    let output = window.Store.GroupMetadata.get(id);
-
-    if (output !== undefined) {
-        if (output.stale) {
-            await output.update();
-        }
-    }
-
-    if (done !== undefined) done(output);
-    return output;
-
-}; */
 
 window.WAPI.getGroupMetadata = async function (id) {
     return window.Store.GroupMetadata.find(id);
@@ -853,13 +1202,6 @@ window.WAPI._getGroupParticipants = async function(id) {
  * @param done Optional callback function for async execution
  * @returns {Promise.<Array|*>} Yields list of IDs
  */
-
-/*
-window.WAPI.getGroupParticipantIDs = async function (id) {
-    return (await WAPI._getGroupParticipants(id))
-        .map((participant) => participant.id);
-}; */
-
 
 window.WAPI.getGroupParticipantIDs = async function(id, done) {
     const output = (await WAPI._getGroupParticipants(id))
@@ -901,13 +1243,13 @@ window.WAPI.getMe = function(done) {
 
 window.WAPI.isLoggedIn = function(done) {
     // Contact always exists when logged in
-    const isLogged = window.Store.Contact && window.Store.Contact.checksum !== undefined;
+	const isLogged = window.Store.Contact || window.Store.Contact._contactHashes !== undefined;
 
     if (done !== undefined) done(isLogged);
     return isLogged;
 };
 
-//Funcao para saber o status do servico - Mike 26/02/2020
+//Funcao para saber o status do servico
 window.WAPI.isConnected = function (done) {
     const isConnected = document.querySelector('*[data-icon="alert-phone"]') !== null ? false : true;
 
@@ -953,7 +1295,7 @@ window.WAPI.processMessageObj = function(messageObj, includeMe, includeNotificat
         return WAPI._serializeMessageObj(messageObj);
     }
 
-    SetConsoleMessage("processMessageObj", JSON.stringify(messageObj));
+    //SetConsoleMessage("processMessageObj", JSON.stringify(messageObj));
     return;
 };
 
@@ -1057,94 +1399,6 @@ window.WAPI.ReplyMessage = function(idMessage, message, done) {
     }
 };
 
-//Funcao desativada em 27/11/2019 by Mike
-/*window.WAPI.sendMessageToID = function (id, message, done) {
-try {
-window.getContact = (id) => {
-return Store.WapQuery.queryExist(id);
-}
-window.getContact(id).then(contact => {
-if (contact.status === 404) {
-done(true);
-} else {
-Store.FindChat.findChat(contact.jid).then(chat => {
-chat.sendMessage(message);
-return true;
-}).catch(reject => {
-if (WAPI.sendMessage(id, message)) {
-done(true);
-return true;
-}else{
-done(false);
-return false;
-}
-});
-}
-});
-} catch (e) {
-if (window.Store.Chat.length === 0)
-return false;
-
-firstChat = Store.Chat.models[0];
-var originalID = firstChat.id;
-firstChat.id = typeof originalID === "string" ? id : new window.Store.UserConstructor(id, { intentionallyUsePrivateConstructor: true });
-if (done !== undefined) {
-firstChat.sendMessage(message).then(function () {
-firstChat.id = originalID;
-done(true);
-});
-return true;
-} else {
-firstChat.sendMessage(message);
-firstChat.id = originalID;
-return true;
-}
-}
-if (done !== undefined) done(false);
-return false;
-} */
-
-window.WAPI.sendMessage = function(id, message, done) {
-    var chat = WAPI.getChat(id);
-    if (chat !== undefined) {
-        if (done !== undefined) {
-            chat.sendMessage(message).then(function() {
-                function sleep(ms) {
-                    return new Promise(resolve => setTimeout(resolve, ms));
-                }
-
-                var trials = 0;
-
-                function check() {
-                    for (let i = chat.msgs.models.length - 1; i >= 0; i--) {
-                        let msg = chat.msgs.models[i];
-
-                        if (!msg.senderObj.isMe || msg.body != message) {
-                            continue;
-                        }
-                        done(WAPI._serializeMessageObj(msg));
-                        return True;
-                    }
-                    trials += 1;
-                    console.log(trials);
-                    if (trials > 30) {
-                        done(true);
-                        return;
-                    }
-                    sleep(500).then(check);
-                }
-                check();
-            });
-            return true;
-        } else {
-            chat.sendMessage(message);
-            return true;
-        }
-    } else {
-        if (done !== undefined) done(false);
-        return false;
-    }
-};
 
 window.WAPI.sendMessage2 = function(id, message, done) {
     var chat = WAPI.getChat(id);
@@ -1167,7 +1421,6 @@ window.WAPI.sendMessage2 = function(id, message, done) {
     return false;
 };
 
-//Funcao adicionada em 18/06/2020 by Mike
 window.WAPI.sendSeen = async function (id) {
     if (!id) return false;
     var chat = window.WAPI.getChat(id);
@@ -1178,44 +1431,15 @@ window.WAPI.sendSeen = async function (id) {
     return false;
 };
 
-/*
-//Apos receber uma mensagem, e nao responder, essa funcao nao funciona de forma isolada
-window.WAPI.sendSeen = function(id, done) {
+window.WAPI.markUnRead = async function (id) {
+    if (!id) return false;
     var chat = window.WAPI.getChat(id);
     if (chat !== undefined) {
-        if (done !== undefined) {
-            Store.SendSeen(Store.Chat.models[0], false).then(function() {
-                done(true);
-            });
+            await Store.ReadSeen.markUnread(chat, true);
             return true;
-        } else {
-            Store.SendSeen(Store.Chat.models[0], false);
-            return true;
-        }
     }
-    if (done !== undefined) done();
     return false;
-}; */
-
-/*
-//Alterado em 20/02/2020 Creditos: by Lucas
-//Apos receber uma mensagem, e nao responder, essa funcao funciona de forma isolada
-window.WAPI.sendSeen = function(id, done) {
-    let chat = window.WAPI.getChat(id);
-    if (chat !== undefined) {
-        if (done !== undefined) {
-            Store.SendSeen(Store.Chat.models[0], false).then(function() {
-                done(true);
-            });
-            return true;
-        } else {
-            Store.SendSeen(Store.Chat.models[0], false);
-            return true;
-        }
-    }
-    if (done !== undefined) done();
-    return false;
-}; */
+};
 
 function isChatMessage(message) {
     if (message.isSentByMe) {
@@ -1267,13 +1491,13 @@ window.WAPI.getUnreadMessages = function(includeMe, includeNotifications, use_un
                 for (let i = messages.length - 1; i >= 0; i--) {
                     let messageObj = messages[i];
                     if (n > 0) {
-                        if (!messageObj.isSentByMe) {
+                        if (!messageObj.fromMe) {
                             let message = WAPI.processMessageObj(messageObj, includeMe, includeNotifications);
                             messageGroup.messages.unshift(message);
                             n -= 1;
                         }
                     } else if (n === -1) { // chat was marked as unread so will fetch last message as unread
-                        if (!messageObj.isSentByMe) {
+                        if (!messageObj.fromMe) {
                             let message = WAPI.processMessageObj(messageObj, includeMe, includeNotifications);
                             messageGroup.messages.unshift(message);
                             break;
@@ -1294,7 +1518,6 @@ window.WAPI.getUnreadMessages = function(includeMe, includeNotifications, use_un
 
     }
 	
-	//mike teste 16/02/2021 tentativa de retornar imagem de perfil
     SetConsoleMessage("getUnreadMessages", JSON.stringify(output));
     return output;
 };
@@ -1570,46 +1793,143 @@ window.WAPI.getBufferedNewMessages = function(done) {
 };
 /** End new messages observable functions **/
 
-window.WAPI.sendImage = function(imgBase64, chatid, filename, caption) {
+window.WAPI.firstContact = async (id) => {
+	try {
+		const contact = await window.API.findJidFromNumber(id);
+		if (contact.status === 404) return false;
 
-    var idUser = new Store.WidFactory.createWid(chatid, {
-        intentionallyUsePrivateConstructor: true
-    });
-	
-    
-        return Store.FindChat.findChat(idUser).then((chat) => {
-                    var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-            var mc = new Store.MediaCollection(chat);
+		return await window.API.findChatFromId(contact.jid);
+	} catch (error) {
+		console.log('Error in firstContact', error)
+		return null;
+	}
+}
+
+window.WAPI.sendImage = async function(imgBase64, chatid, filename, caption) {
+	try {
+		window.WAPI.findJidFromNumber(chatid).then(contact => {
+			if (contact.status === 404) {
+				console.log('1. Contact not found in forceSendMessageToID', err)
+			} else {
+				window.WAPI.findChatFromId(contact.jid).then(chat => {
+					
+					let mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
             
-    
-            //New - Mike Lustosa 07/06/2022
-            mc.processAttachments([{file: mediaBlob}, 1], chat, 1).then(() => {
-                let media = mc._models[0];
-                media.sendToChat(chat, {caption:caption});
-                return true;
-            });
-        });
-    
+					let mc = new Store.MediaCollection(chat);
+            
+					mc.processAttachments([{file: mediaBlob}, 1], 1, chat).then(() => {
+						let media = mc._models[0];
+						media.sendToChat(chat, {caption:caption});
+						return true;
+					});					
+					
+				}).catch(reject => {
+					console.log('2. Error in forceSendMessageToID, chat not found')
+				});
+			}
+		}).catch((err) => {
+			console.log('3. Error in forceSendMessageToID, chat not found', err)
+		})
+	} catch (e) {
+		console.log('4. Error in forceSendMessageToID, chat not found', err)
+	}    
+}
+
+
+window.WAPI.findJidFromNumber = (number) => {
+	try {
+		number = number.replace("@c.us", "").replace("+", "");
+		return Store.QueryExist.queryExist({ type: "phone", phone: number }).then(value => {
+			return {
+				status: 200,
+				jid: value.wid
+			}
+		})
+	} catch (error) {
+		console.log('Error in findJidFromNumber',  error + ' - ' + number);
+		return {};
+	}
+}
+
+window.WAPI.findChatFromId = (id) => {
+	try {
+		console.log('findChatFromId start', id);
+		const wid = window.Store.WidFactory.createWid(id);
+		console.log('wid: ', id);
+		return window.Store.Chat.find(wid);
+	} catch (error) {
+		console.log('Error in findChatFromId', error)
+		return null;
+	}
 }
 
 
 window.WAPI.sendMessageToID = function(chatid, msgText) {
-    var idUser = new window.Store.UserConstructor(chatid, {
-        intentionallyUsePrivateConstructor: true
-    });
-
-    console.log(idUser)
-
-    const teste = Store.FindChat.findChat(idUser)
-        .then(chatid => {
-            console.log(teste)
-            var mc = new Store.SendTextMsgToChat(chatid, msgText);
-            return true;
-        })
-
-    return teste
+    
+	try {
+		window.WAPI.findJidFromNumber(chatid).then(contact => {
+			if (contact.status === 404) {
+				console.log('1. Contact not found in forceSendMessageToID', err)
+			} else {
+				window.WAPI.findChatFromId(contact.jid).then(chat => {
+					chat.sendMessage(msgText);
+				}).catch(reject => {
+					console.log('2. Error in forceSendMessageToID, chat not found')
+				});
+			}
+		}).catch((err) => {
+			console.log('3. Error in forceSendMessageToID, chat not found', err)
+		})
+	} catch (e) {
+		console.log('4. Error in forceSendMessageToID, chat not found', err)
+	}
 
 }
+
+
+window.WAPI.sendMessage = function(id, message, done) {
+    var chat = WAPI.getChat(id);
+    if (chat !== undefined) {
+        if (done !== undefined) {
+            chat.sendMessage(message).then(function() {
+                function sleep(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+
+                var trials = 0;
+
+                function check() {
+                    for (let i = chat.msgs.models.length - 1; i >= 0; i--) {
+                        let msg = chat.msgs.models[i];
+
+                        if (!msg.senderObj.isMe || msg.body != message) {
+                            continue;
+                        }
+                        done(WAPI._serializeMessageObj(msg));
+                        return True;
+                    }
+                    trials += 1;
+                    console.log(trials);
+                    if (trials > 30) {
+                        done(true);
+                        return;
+                    }
+                    sleep(500).then(check);
+                }
+                check();
+            });
+            return true;
+        } else {
+            chat.sendMessage(message);
+            return true;
+        }
+    } else {
+        if (done !== undefined) done(false);
+        return false;
+    }
+};
+
+
 
 window.WAPI.base64ImageToFile = function(b64Data, filename) {
     var arr = b64Data.split(',');
@@ -1630,22 +1950,55 @@ window.WAPI.base64ImageToFile = function(b64Data, filename) {
 /**
  * Send contact card to a specific chat using the chat ids
  *
- * @param {string} to '000000000000@c.us'
- * @param {string|array} contact '111111111111@c.us' | ['222222222222@c.us', '333333333333@c.us, ... 'nnnnnnnnnnnn@c.us']
+ * @param {string} chatId '000000000000@c.us'
+ * @param {string|array} contacts '111111111111@c.us' | ['222222222222@c.us', '333333333333@c.us, ... 'nnnnnnnnnnnn@c.us']
  */
-window.WAPI.sendContact = function(to, contact) {
-    if (!Array.isArray(contact)) {
-        contact = [contact];
+window.WAPI.sendContact = function(chatId, contacts, options = {}) {
+    options = Object.assign(Object.assign({}, defaultSendMessageOptionsWAPI), options);
+    if (!Array.isArray(contacts)) {
+        contacts = [contacts];
     }
-    contact = contact.map((c) => {
-        return WAPI.getChat(c).__x_contact;
-    });
-
-    if (contact.length > 1) {
-        window.WAPI.getChat(to).sendContactList(contact);
-    } else if (contact.length === 1) {
-        window.WAPI.getChat(to).sendContact(contact[0]);
+    const vcards = [];
+    for (const contact of contacts) {
+        let id = '';
+        let name = '';
+        if (typeof contact === 'object' && 'name' in contact) {
+            id = contact.id.toString();
+            name = contact.name;
+        }
+        else {
+            id = contact.toString();
+        }
+        let contactModel = Store.Contact.get(id);
+        if (!contactModel) {
+            contactModel = new Store.ContactModel({
+                id: assertWid(id),
+                name,
+            });
+        }
+        if (!name && contactModel.id.equals(Store.UserPrefs.getMaybeMeUser())) {
+            name = contactModel.displayName;
+        }
+        if (name) {
+            // Create a clone
+            contactModel = new Store.ContactModel(contactModel.attributes);
+            contactModel.name = name;
+            Object.defineProperty(contactModel, 'formattedName', { value: name });
+            Object.defineProperty(contactModel, 'displayName', { value: name });
+        }
+        vcards.push(Store.VCard.vcardFromContactModel(contactModel));
     }
+    const message = {};
+    if (vcards.length === 1) {
+        message.type = 'vcard';
+        message.body = vcards[0].vcard;
+        message.vcardFormattedName = vcards[0].displayName;
+    }
+    else {
+        message.type = 'multi_vcard';
+        message.vcardList = vcards;
+    }
+    return WAPI.sendRawMessageWAPI(chatId, message, options);
 };
 
 /**
@@ -1654,7 +2007,7 @@ window.WAPI.sendContact = function(to, contact) {
  * @param {string} chatId '000000000000@c.us'
  */
 window.WAPI.getNewMessageId = function(chatId) {
-    var newMsgId = Store.Msg.models[0].__x_id.clone();
+    var newMsgId = Store.Msg._models[0].__x_id.clone();
 
     newMsgId.fromMe = true;
     newMsgId.id = WAPI.getNewId().toUpperCase();
@@ -1682,9 +2035,6 @@ window.WAPI.sendVCard = async function (chatId, contactNumber, contactName) {
     const cont = await WAPI.getContact(contactNumber)
     const newMsgId = await WAPI.getNewMessageId(chatId)
     
-    // console.log(Store.addAndSendMsgToChat)
-    // console.log(cont)
-
     if(!cont){
         return
     }
@@ -1696,25 +2046,13 @@ window.WAPI.sendVCard = async function (chatId, contactNumber, contactName) {
 
     let queue = Store.Chat.get(chatId)
 
-    const chat = await Store.FindChat.findChat(idUser)
-    
-    // chat.addQueue = queue.addQueue
-    // chat.addQueue.enqueue = queue.addQueue.__proto__.enqueue
-    // // chat.msgs = queue.msgs
-    // // chat.msgs.add = queue.msgs.__proto__.add
-    // chat.sendQueue = queue.sendQueue
-    // chat.sendQueue.enqueue = queue.sendQueue.__proto__.enqueue
-
+    const chat = await Store.FindChat.findOrCreateLatestChat(idUser)
 
     const newchat = Object.assign(chat, queue);
     
-    // chat.lastReceivedKey._serialized = inChat._serialized;
-    // chat.lastReceivedKey.id = inChat.id;
-
-    // var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
     const fromWid = await window.Store.Conn.wid
     const name = !contactName ? cont.__x_formattedTitle : contactName
-    const body = await window.Store.Vcard.vcardFromContactModel(cont2)
+    const body = await window.Store.VCard.vcardFromContactModel(cont2)
     console.log(body.vcard)
 
     var message = {
@@ -1727,25 +2065,11 @@ window.WAPI.sendVCard = async function (chatId, contactNumber, contactName) {
         isNewMsg: true,
         type: "vcard",
         from: fromWid,
-        // clientUrl:undefined,
-        // directPath:undefined,
-        // filehash:undefined,
-        // uploadhash:undefined,
-        // mediaKey:undefined,
-        // isQuotedMsgAvailable:false,
-        // invis:false,
-        // mediaKeyTimestamp:undefined,
-        // mimetype:undefined,
-        // height:undefined,
-        // width:undefined,
-        // ephemeralStartTimestamp:undefined,
         body: body.vcard,
-        // mediaData:undefined,
         isQuotedMsgAvailable: false,
-        // subtype: contactName, 
         vcardFormattedName: name
     };
-    // Object.assign(tempMsg, extend);
+
     console.log(Store.addAndSendMsgToChat)
     return (await Promise.all(Store.addAndSendMsgToChat(newchat, message)))[1]=="success"
 };
@@ -1797,7 +2121,9 @@ window.WAPI.joinGroupViaLink = async function(link){
         if(!link.match(/chat.whatsapp.com\/([\w\d]*)/g).length) return false;
         code = link.match(/chat.whatsapp.com\/([\w\d]*)/g)[0].replace('chat.whatsapp.com\/','');
     }
-    const group = await Store.GroupInvite.joinGroupViaInvite(code);
+
+	const group = await Store.GroupInvite.sendJoinGroupViaInvite(code);	
+
     if(!group.id) return false;
     return group.id._serialized
 }
@@ -1815,29 +2141,21 @@ window.WAPI.addParticipant = async function (idGroup, idParticipant) {
 }
 
 
-/**
- * Remove participant of Group
- * @param {*} idGroup '0000000000-00000000@g.us'
- * @param {*} idParticipant '000000000000@c.us'
- */
-window.WAPI.removeParticipant = async function (idGroup, idParticipant) {
-    const chat = Store.Chat.get(idGroup);
+
+window.WAPI.removeParticipant = async function(idGroup, idParticipant){
+	const chat = Store.Chat.get(idGroup);
     const rm = chat.groupMetadata.participants.get(idParticipant);
     await window.Store.Participants.removeParticipants(chat, [rm]);
     return true;
-}
+    
+} 
 
 /**
  * Promote Participant to Admin in Group
  * @param {*} idGroup '0000000000-00000000@g.us'
  * @param {*} idParticipant '000000000000@c.us'
  */
-window.WAPI.promoteParticipant = async function (idGroup, idParticipant) {
-    const chat = Store.Chat.get(idGroup);
-    const promote = chat.groupMetadata.participants.get(idParticipant);
-    await window.Store.Participants.promoteParticipants(chat, [promote]);
-    return true;
-}
+
 
 /**
  * Demote Admin of Group
@@ -1854,12 +2172,11 @@ window.WAPI.demoteParticipant = async function (idGroup, idParticipant) {
 }
 
 //Nova funcao alternativa para enviar mensagens(Nao envia para grupos)
-//Criada em 27/11/2019 Mike
 window.WAPI.sendMessageToID2 = function(id, msgText) {
     
     window.Store.WapQuery.queryExist(id).then(function(e) {
         if (e.status === 200) {
-            window.Store.FindChat.findChat(e.jid).then((chat) => {
+            window.Store.FindChat.findOrCreateLatestChat(e.jid).then((chat) => {
                 try {
                     window.Store.SendTextMsgToChat(chat, msgText);
                     return true;
@@ -1888,7 +2205,70 @@ window.WAPI.isValidNumber = async function (phoneId) {
     return isValid;
 };
 
-/** 28/04/2020 - Mike
+
+function prepareMessageButtons(e, t) {
+    if (!t.buttons) return e;
+	
+    if (!Array.isArray(t.buttons)) throw "Buttons options is not a array";
+	
+                    if (void 0 !== t.useTemplateButtons && null !== t.useTemplateButtons || (t.useTemplateButtons = t.buttons.some((e => "phoneNumber" in e || "url" in e))), t.useTemplateButtons) {
+                        if (0 === t.buttons.length || t.buttons.length > 5) throw "Buttons options must have between 1 and 5 options"
+                    } else if (0 === t.buttons.length || t.buttons.length > 3) throw "Buttons options must have between 1 and 3 options";
+                    return e.title = t.title, e.footer = t.footer, t.useTemplateButtons ? (e.isFromTemplate = !0, e.buttons = new a.TemplateButtonCollection, e.hydratedButtons = t.buttons.map(((e, t) => "phoneNumber" in e ? {
+                        index: t,
+                        callButton: {
+                            displayText: e.text,
+                            phoneNumber: e.phoneNumber
+                        }
+                    } : "url" in e ? {
+                        index: t,
+                        urlButton: {
+                            displayText: e.text,
+                            url: e.url
+                        }
+                    } : {
+                        index: t,
+                        quickReplyButton: {
+                            displayText: e.text,
+                            id: e.id || `${t}`
+                        }
+                    })), e.buttons.add(e.hydratedButtons.map(((e, t) => {
+                        var r, n, o, i;
+                        const s = `${null!=e.index?e.index:t}`;
+                        return e.urlButton ? new a.TemplateButtonModel({
+                            id: s,
+                            displayText: null === (r = e.urlButton) || void 0 === r ? void 0 : r.displayText,
+                            url: null === (n = e.urlButton) || void 0 === n ? void 0 : n.url,
+                            subtype: "url"
+                        }) : e.callButton ? new a.TemplateButtonModel({
+                            id: s,
+                            displayText: e.callButton.displayText,
+                            phoneNumber: e.callButton.phoneNumber,
+                            subtype: "call"
+                        }) : new a.TemplateButtonModel({
+                            id: s,
+                            displayText: null === (o = e.quickReplyButton) || void 0 === o ? void 0 : o.displayText,
+                            selectionId: null === (i = e.quickReplyButton) || void 0 === i ? void 0 : i.id,
+                            subtype: "quick_reply"
+                        })
+                    })))) : (e.isDynamicReplyButtonsMsg = !0, e.dynamicReplyButtons = t.buttons.map(((e, t) => ({
+                        buttonId: e.id || `${t}`,
+                        buttonText: {
+                            displayText: e.text
+                        },
+                        type: 1
+                    }))), e.replyButtons = new a.ButtonCollection, e.replyButtons.add(e.dynamicReplyButtons.map((e => {
+                        var t;
+                        return new a.ReplyButtonModel({
+                            id: e.buttonId,
+                            displayText: (null === (t = e.buttonText) || void 0 === t ? void 0 : t.displayText) || void 0
+                        })
+                    })))), e
+}
+
+
+
+/**
  * Send location
  *
  * @param {string} chatId '558199999999@c.us'
@@ -1898,48 +2278,28 @@ window.WAPI.isValidNumber = async function (phoneId) {
  */
  
  
-window.WAPI.sendLocation = async function (chatId, lat, lng, loc) {
-
-    var idUser = new window.Store.UserConstructor(chatId, {
-        intentionallyUsePrivateConstructor: true
-    });
-
-    const fromwWid = await window.Store.Conn.wid;
-
-    const inChat = await Store.FindChat.findChat(idUser)
-
-    let queue = Store.Contact.get(chatId);
-
-    const newchat = Object.assign(queue, inChat);
-
-    console.log(queue)
-    
-    console.log(newchat)
-    // chat.lastReceivedKey._serialized = inChat._serialized;
-    // chat.lastReceivedKey.id = inChat.id;
-
-    // var tempMsg = Object.create(Store.Msg.models.filter(msg => msg.__x_isSentByMe && !msg.quotedMsg)[0]);
-    var newId = window.WAPI.getNewMessageId(chatId);
-    var message = {
-        ack: 0,
-        id: newId,
-        local: true,
-        self: "in",
-        t: parseInt(new Date().getTime() / 1000),
-        to: chatId,
-        isNewMsg: true,
+window.WAPI.sendLocation = async function (chatId, options) {
+    options = Object.assign(Object.assign({}, defaultSendMessageOptionsWAPI), options);
+    const location = options.name && options.address
+        ? `${options.name}\n${options.address}`
+        : options.name || options.address || '';
+    if (typeof options.lat === 'string') {
+        options.lat = parseFloat(options.lat);
+    }
+    if (typeof options.lng === 'string') {
+        options.lng = parseFloat(options.lng);
+    }
+    let rawMessage = {
         type: "location",
-        lat,
-        lng,
-        loc,
-        from: fromwWid
+        lat: options.lat,
+        lng: options.lng,
+        loc: location,
+        clientUrl: options.url
     };
-    // Object.assign(tempMsg, extend);
-    return await Promise.all(Store.addAndSendMsgToChat(newchat, message))
-};
 
-// Novas Funcoes incluidas por Marcelo Santos
-
+    return await WAPI.sendRawMessageWAPI(chatId, rawMessage, options);
+}
+ 
 window.WAPI.quickClean = function (ob) {return JSON.parse(JSON.stringify(ob))};
 
 window.WAPI.setMyName = async function (newName) {
@@ -1998,8 +2358,7 @@ window.WAPI.getMe = function(){
 }
 
 window.WAPI.getStatus = async (id) => {
- SetConsoleMessage("GetStatusMessage", JSON.stringify(await Store.MyStatus.getStatus(id)));	 
- //return status; 
+	SetConsoleMessage("GetStatusMessage", JSON.stringify(await Store.MyStatus.getStatus(id)));	  
 }
 
 window.WAPI.checkNumberStatus = async function (id) {
@@ -2045,7 +2404,7 @@ window.WAPI.sendButtons = async function (chatId, title, buttons, description = 
 };
 
 const defaultSendMessageOptionsWAPI = {
-    createChat: false,
+	createChat: false,
     detectMentioned: true,
     linkPreview: true,
     markIsRead: true,
@@ -2059,7 +2418,7 @@ window.WAPI.sendMessageOptions = async function (chatId, content, options = {}) 
 
     let queue = Store.Chat.get(chatId)
 
-    const newChat = await Store.FindChat.findChat(idUser)
+    const newChat = await Store.FindChat.findOrCreateLatestChat(idUser)
 
     const chat = Object.assign(newChat, queue);
     
@@ -2183,22 +2542,51 @@ window.WAPI.sendMessageOptions = async function (chatId, content, options = {}) 
   
     return newMsgId._serialized;
 };
+function assertWid(id) {
+    const wid = Store.WidFactory.createWid(id);
+    if (!wid) {
+        throw new Error(`Invalid WID value for ${id}`);
+    }
+    return wid;
+}
 
-function generateMessageID(chat) {
-    let to = chat.id;
+async function generateMessageID(chat) {
+    const from = Store.UserPrefs.getMaybeMeUser();
+    let to;
+    if (chat instanceof Store.Wid) {
+        to = chat;
+        console.log('generateMessageID: instanceof Store.Wid')
+    }
+    else if (chat instanceof Store.ChatModel) {
+        to = chat.id;
+        console.log('generateMessageID: instanceof Store.ChatModel')
+    }
+    else {
+        to = assertWid(chat);
+        console.log('generateMessageID: assertWid')
+    }
+    let participant = undefined;
+    if (to.isGroup()) {
+        participant = Store.WidFactory.toUserWid(from);
+    }
     return new Store.MsgKey({
-        from: Store.UserPrefs.getMaybeMeUser(),
+        from,
         to: chat.id,
-        id: WAPI.getNewId(),
+        id: await Store.randomMessageId(),
+        participant,
         selfDir: 'out',
     });
 }
 
-/*Font https://github.com/wppconnect-team/wa-js/blob/main/src/chat/functions/prepareRawMessage.ts*/
 async function prepareRawMessageWAPI(chat, message, options = {}) {
     options = Object.assign(Object.assign({}, defaultSendMessageOptionsWAPI), options);
-    message = Object.assign({ t: 0, from: Store.UserPrefs.getMaybeMeUser(), to: chat.id, self: 'out', isNewMsg: true, local: true, ack: 0 }, message);
-    if (options.messageId) {
+	message = Object.assign({ t: Store.Time.unixTime(), from: Store.UserPrefs.getMaybeMeUser(), to: chat.id, self: 'out', isNewMsg: true, local: true, ack: 0 }, message);
+    
+	if (message.type !== 'protocol') {
+        const ephemeral = Store.getEphemeralFields(chat);
+        message = Object.assign(Object.assign({}, ephemeral), message);
+    }
+	if (options.messageId) {
         if (typeof options.messageId === 'string') {
             options.messageId = Store.MsgKey.fromString(options.messageId);
         }
@@ -2211,7 +2599,7 @@ async function prepareRawMessageWAPI(chat, message, options = {}) {
         message.id = options.messageId;
     }
     if (!message.id) {
-        message.id = generateMessageID(chat);
+        message.id = await generateMessageID(chat);
     }
     if (options.mentionedList && !Array.isArray(options.mentionedList)) {
         throw Error('The option mentionedList is not an array, mentionedList: ' + options.mentionedList);
@@ -2220,28 +2608,61 @@ async function prepareRawMessageWAPI(chat, message, options = {}) {
     return message;
 }
 
-/*Font https://github.com/wppconnect-team/wa-js/blob/main/src/chat/functions/sendRawMessage.ts*/
-async function sendRawMessageWAPI(chatId, rawMessage, options = {}) {
+/**
+ * Mark a chat as read and send SEEN event
+ */
+async function markIsRead(chatId) {
+    const chat = assertGetChat(chatId);
+    const unreadCount = chat.unreadCount;
+    await Store.ReadSeen.sendSeen(chat, false);
+    return {
+        wid: chat.id,
+        unreadCount,
+    };
+}
+
+window.WAPI.assertFindChat = async function (e) {
+    const t = await window.Store.Chat.find(e);
+    if (!t) throw new i(e);
+    return t
+}
+
+function assertGetChat(e) {
+	const t = window.Store.Chat.get(e)
+    if (!t) throw new i(e);
+    return t
+}
+
+window.WAPI.sendRawMessageWAPI = async function (chatId, rawMessage, options = {}) {
     options = Object.assign(Object.assign({}, defaultSendMessageOptionsWAPI), options);
     const chat = options.createChat
-        ? await Store.FindChat.findChat(chatId)
-        : WAPI.getChat(chatId);
+        ? await (0, window.WAPI.assertFindChat(chatId))
+        : (0, assertGetChat(chatId));
+
     rawMessage = await prepareRawMessageWAPI(chat, rawMessage, options);
+    if(options.markIsRead) {
+        console.log("marking chat is read before send message");
+        await markIsRead(chat.id).catch((() => null));
+    }
+    console.log(`sending message (${rawMessage.type}) with id ${rawMessage.id}`)
+    console.log('Olha o rawMessage: ', rawMessage);
 
     const result = await Store.addAndSendMsgToChat(chat, rawMessage);
-
+    console.log('olha o result: ', result); //Aqui retornar 0
+    console.log(`message ${rawMessage.id} queued`);
     const message = await result[0];
-    if (options.waitForAck) {        
+    if (options.waitForAck) {
+        console.log(`waiting ack for ${rawMessage.id}`);
         const sendResult = await result[1];
+        console.log(`ack received for ${rawMessage.id} (ACK: ${message.ack}, SendResult: ${sendResult})`)
     }
     return {
         id: message.id.toString(),
         ack: message.ack,
-        sendMsgResult: result[1],
-    };
+        sendMsgResult: result[1]
+    }
 }
 
-/*font https://github.com/wppconnect-team/wa-js/blob/main/src/chat/functions/sendCreatePollMessage.ts*/
 window.WAPI.sendPool = async function(chatId, title, surveyList) {
     const survey = {
 		type: "poll_creation",
@@ -2258,22 +2679,35 @@ window.WAPI.sendPool = async function(chatId, title, surveyList) {
 	return await (0, sendRawMessageWAPI)(chatId, survey)
 }
 
-//Mike W. Lustosa 14/11/2022
 window.WAPI.onIncomingCall = function (onIncomingCallCallback) {
 	window.Store.Call.on('add', WAPI.onIncomingCallCallback);		
     return true;	
 }
 
-//Mike W. Lustosa 14/11/2022
+window.WAPI.onGetUnReadMessageFromMe = function () {
+	Store.Chat.on("change:hasUnread", (jsonMsg) => {
+		SetConsoleMessage("getUnreadMessagesFromMe", JSON.stringify(jsonMsg));
+	});
+}
+
 window.WAPI.onIncomingCallCallback = async function() {
-	
-	//SetConsoleMessage('getIncomingCall', JSON.stringify({ Result : window.Store.Call._models[0].__x_peerJid.user }))
-	
-	//SetConsoleMessage('getIncomingCall', JSON.stringify( window.Store.Call._models[0].__x_peerJid.user))
 	SetConsoleMessage('getIncomingCall', window.Store.Call._models[0].__x_peerJid.user)
-	
 	window.Store.Call._models = []
 }
+
+window.WAPI.getchatId = async function (chatId) {
+    var to = await WAPI.getChatById(chatId),
+    objTo = to.lastReceivedKey || {},
+    extend = {
+      formattedName: to.contact.formattedName,
+      isBusiness: to.contact.isBusiness,
+      isMyContact: to.contact.isMyContact,
+      verifiedName: to.contact.verifiedName,
+      pushname: to.contact.pushname,
+    };
+  Object.assign(objTo, extend);
+  return objTo;
+};
 
 window.WAPI.sendOptions = async function (to, title, subTitle, description, buttonText, menu) {
     if (!title && typeof title != 'string') {
@@ -2401,5 +2835,21 @@ window.WAPI.sendOptions = async function (to, title, subTitle, description, butt
 		window.WAPI.sendMessageToID(to,message);
 		
 		window.Store.addAndSendMsgToChat(chat, message);
-		
 };
+
+window.Store.MediaTypeFromProtobufModule.mediaTypeFromProtobufOriginal = window.Store.MediaTypeFromProtobufModule.mediaTypeFromProtobuf;
+window.Store.MediaTypeFromProtobufModule.mediaTypeFromProtobuf = function(...args) {
+    const [proto] = args;
+    if (proto.locationMessage) {
+        return null;
+    }
+    return window.Store.MediaTypeFromProtobufModule.mediaTypeFromProtobufOriginal(...args);
+}
+window.Store.TypeAttributeFromProtobufModule.typeAttributeFromProtobufOriginal = window.Store.TypeAttributeFromProtobufModule.typeAttributeFromProtobuf;
+window.Store.TypeAttributeFromProtobufModule.typeAttributeFromProtobuf = function(...args) {
+    const [proto] = args;
+    if (proto.locationMessage) {
+        return 'text';
+    }
+    return window.Store.TypeAttributeFromProtobufModule.typeAttributeFromProtobufOriginal(...args);
+}
