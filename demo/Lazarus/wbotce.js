@@ -1,5 +1,5 @@
 //Version_JS;Version_TInjectMin;Version_CEF4Min;
-//3.0.2.0;1.0.0.9;78.3.0
+//3.0.4.0;1.0.0.9;78.3.0
 
 function getAllGroupContacts(Contacts) {
 	SetConsoleMessage("GetAllGroupContacts", JSON.stringify(Contacts));	
@@ -64,7 +64,11 @@ var gettingUnreadMessages = false;
 var WAVersion;
 
 function startMonitor(intervalSeconds = 0) {
-    isLoggedStatus = WAPI.isLoggedIn();
+    if (intervalMonitor) {
+        clearInterval(intervalMonitor);
+    }
+	
+	isLoggedStatus = WAPI.isLoggedIn();
 	window.WAPI.onIncomingCall();
 	window.WAPI.onGetUnReadMessageFromMe();
 	WAVersion = WAPI.getWAVersion();
@@ -115,6 +119,23 @@ function monitorUnReadMessages() {
     gettingUnreadMessages = false;
 }
 
+const fixObjectsStore = () => {
+	try {
+		console.log('fixObjectsStore start')
+
+		if (!window.Store.Chat._find || !window.Store.Chat.findImpl) {
+			window.Store.Chat._find = e => {
+				const target = window.Store.Chat.get(e);
+				return target ? Promise.resolve(target) : Promise.resolve({
+					id: e
+				});
+			};
+			window.Store.Chat.findImpl = window.Store.Chat._find;
+		}
+	} catch (error) {
+		console.log('Error in function fixObjectsStore', error)
+	}
+}
 
 const newMakeStore = () => {
   if (!window.Store) {
@@ -158,8 +179,8 @@ const newMakeStore = () => {
 			{ id: "_Presence", conditions: (module) => (module.setPresenceAvailable && module.setPresenceUnavailable) ? module : null },
 			{ id: "WapDelete", conditions: (module) => (module.sendConversationDelete && module.sendConversationDelete.length == 2) ? module : null },
 			{ id: 'FindChat', conditions: (module) => (module && module.findOrCreateLatestChat) ? module : null},
-			{ id: "WapQuery", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },//Mike 28/10/2022
-			{ id: "WapQueryMD", conditions: (module) => (module.queryExists && module.queryPhoneExists) || (module.queryWidExists && module.queryPhoneExists) ? module : null}, //MD Mike 09/11/2021				
+			{ id: "WapQuery", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },
+			{ id: "WapQueryMD", conditions: (module) => (module.queryExists && module.queryPhoneExists) || (module.queryWidExists && module.queryPhoneExists) ? module : null},
 			{ id: 'Perfil', conditions: (module) => module.__esModule === true && module.setPushname && !module.getComposeContents ? module : null},
 			{ id: "CryptoLib", conditions: (module) => (module.decryptE2EMedia) ? module : null },
 			{ id: "OpenChat", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.openChat) ? module.default : null },
@@ -279,8 +300,9 @@ const newMakeStore = () => {
         //console.log(window.Store)
         return window.Store;
     }
-
+	
     getStore(modulesFactory);
+	fixObjectsStore();
   }
 }
 
@@ -305,8 +327,8 @@ const oldMakeStore = () => {
 				{ id: "_Presence", conditions: (module) => (module.setPresenceAvailable && module.setPresenceUnavailable) ? module : null },
 				{ id: "WapDelete", conditions: (module) => (module.sendConversationDelete && module.sendConversationDelete.length == 2) ? module : null },
 				{ id: 'FindChat', conditions: (module) => (module && module.findOrCreateLatestChat) ? module : null},
-				{ id: "WapQuery", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },//Mike 28/10/2022
-				{ id: "WapQueryMD", conditions: (module) => (module.queryExists && module.queryPhoneExists) || (module.queryWidExists && module.queryPhoneExists) ? module : null}, //MD Mike 09/11/2021				
+				{ id: "WapQuery", conditions: (module) => (module.queryExist) ? module : ((module.default && module.default.queryExist) ? module.default : null) },
+				{ id: "WapQueryMD", conditions: (module) => (module.queryExists && module.queryPhoneExists) || (module.queryWidExists && module.queryPhoneExists) ? module : null},
 				{ id: 'Perfil', conditions: (module) => module.__esModule === true && module.setPushname && !module.getComposeContents ? module : null},
 				{ id: "CryptoLib", conditions: (module) => (module.decryptE2EMedia) ? module : null },
 				{ id: "OpenChat", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.openChat) ? module.default : null },
@@ -523,14 +545,13 @@ window.WAPI._serializeMessageObj = (obj) => {
 
     return Object.assign(window.WAPI._serializeRawObj(obj), {
         id: obj.id._serialized,
-        //add 02/06/2020 mike -->
+
 		quotedParticipant: obj.quotedParticipant? obj.quotedParticipant._serialized ? obj.quotedParticipant._serialized : undefined : undefined,
         author: obj.author? obj.author._serialized ? obj.author._serialized : undefined : undefined,
         chatId: obj.chatId? obj.chatId._serialized ? obj.chatId._serialized : undefined : undefined,
         to: obj.to? obj.to._serialized ? obj.to._serialized : undefined : undefined,
         fromMe: obj.id.fromMe,
-		//add 02/06/2020 mike <--
-		
+        
 		sender: obj["senderObj"] ? WAPI._serializeContactObj(obj["senderObj"]) : null,
         timestamp: obj["t"],
         content: obj["body"],
@@ -769,7 +790,7 @@ window.WAPI.getAllNewMessages = async function () {
  * @returns {Array|*} List of chats
  */
  
- 
+/*Deprecated 
 window.WAPI.getAllGroups = function(done) {
     let groups = window.Store.Chat.filter((chat) => chat.isGroup);
 
@@ -783,7 +804,39 @@ window.WAPI.getAllGroups = function(done) {
 	})
 	
 	SetConsoleMessage("getAllGroups", JSON.stringify(arrGroups));
-}; 
+}; */
+
+window.WAPI.getAllGroups = function(done) {
+    // Verifica se window.Store e GroupMetadata estão definidos
+    if (!window.Store || !window.Store.GroupMetadata) {
+        console.error("Não foi possível acessar os grupos. Verifique se o objeto Store está definido.");
+        return; // Sai da função caso os dados não estejam disponíveis
+    }
+
+    // Atribui o valor de GroupMetadata, garantindo que não seja null ou undefined
+    let groups = window.Store.GroupMetadata || [];
+
+    // Verifica se groups está vazio
+    if (groups.length === 0) {
+        console.warn("Nenhum grupo encontrado.");
+        return; // Sai da função se não houver grupos
+    }
+
+    // Criação da lista de grupos, com segurança contra valores inesperados
+    const listGroups = groups.map(group => ({
+        id: group.id || "ID não disponível",  // Valor de fallback caso id não exista
+        subject: group.subject || "Sem título" // Valor de fallback caso subject não exista
+    }));
+
+    // Se a função 'done' for fornecida, chama-a com a lista de grupos
+    if (done !== undefined) {
+        done(listGroups);
+    }
+
+    // Exibe o resultado no console
+    //console.log(JSON.stringify(listGroups));
+	SetConsoleMessage("getAllGroups", JSON.stringify(listGroups));
+};
 
 //01/06/2020
 window.WAPI.getAllGroupsList = function(done) {
@@ -1196,7 +1249,7 @@ window.WAPI.isLoggedIn = function(done) {
     return isLogged;
 };
 
-//Funcao para saber o status do servico - Mike 26/02/2020
+//Funcao para saber o status do servico
 window.WAPI.isConnected = function (done) {
     const isConnected = document.querySelector('*[data-icon="alert-phone"]') !== null ? false : true;
 
@@ -1346,47 +1399,6 @@ window.WAPI.ReplyMessage = function(idMessage, message, done) {
     }
 };
 
-window.WAPI.sendMessage = function(id, message, done) {
-    var chat = WAPI.getChat(id);
-    if (chat !== undefined) {
-        if (done !== undefined) {
-            chat.sendMessage(message).then(function() {
-                function sleep(ms) {
-                    return new Promise(resolve => setTimeout(resolve, ms));
-                }
-
-                var trials = 0;
-
-                function check() {
-                    for (let i = chat.msgs.models.length - 1; i >= 0; i--) {
-                        let msg = chat.msgs.models[i];
-
-                        if (!msg.senderObj.isMe || msg.body != message) {
-                            continue;
-                        }
-                        done(WAPI._serializeMessageObj(msg));
-                        return True;
-                    }
-                    trials += 1;
-                    console.log(trials);
-                    if (trials > 30) {
-                        done(true);
-                        return;
-                    }
-                    sleep(500).then(check);
-                }
-                check();
-            });
-            return true;
-        } else {
-            chat.sendMessage(message);
-            return true;
-        }
-    } else {
-        if (done !== undefined) done(false);
-        return false;
-    }
-};
 
 window.WAPI.sendMessage2 = function(id, message, done) {
     var chat = WAPI.getChat(id);
@@ -1409,12 +1421,21 @@ window.WAPI.sendMessage2 = function(id, message, done) {
     return false;
 };
 
-//Funcao adicionada em 18/06/2020 by Mike
 window.WAPI.sendSeen = async function (id) {
     if (!id) return false;
     var chat = window.WAPI.getChat(id);
     if (chat !== undefined) {
             await Store.ReadSeen.sendSeen(chat, false);
+            return true;
+    }
+    return false;
+};
+
+window.WAPI.markUnRead = async function (id) {
+    if (!id) return false;
+    var chat = window.WAPI.getChat(id);
+    if (chat !== undefined) {
+            await Store.ReadSeen.markUnread(chat, true);
             return true;
     }
     return false;
@@ -1497,7 +1518,6 @@ window.WAPI.getUnreadMessages = function(includeMe, includeNotifications, use_un
 
     }
 	
-	//mike teste 16/02/2021 tentativa de retornar imagem de perfil
     SetConsoleMessage("getUnreadMessages", JSON.stringify(output));
     return output;
 };
@@ -1773,44 +1793,143 @@ window.WAPI.getBufferedNewMessages = function(done) {
 };
 /** End new messages observable functions **/
 
-window.WAPI.sendImage = function(imgBase64, chatid, filename, caption) {
+window.WAPI.firstContact = async (id) => {
+	try {
+		const contact = await window.API.findJidFromNumber(id);
+		if (contact.status === 404) return false;
 
-    var idUser = new Store.WidFactory.createWid(chatid, {
-        intentionallyUsePrivateConstructor: true
-    });
-	
-    
-        return Store.FindChat.findOrCreateLatestChat(idUser).then((chat) => {
-                    var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-            var mc = new Store.MediaCollection(chat);
+		return await window.API.findChatFromId(contact.jid);
+	} catch (error) {
+		console.log('Error in firstContact', error)
+		return null;
+	}
+}
+
+window.WAPI.sendImage = async function(imgBase64, chatid, filename, caption) {
+	try {
+		window.WAPI.findJidFromNumber(chatid).then(contact => {
+			if (contact.status === 404) {
+				console.log('1. Contact not found in forceSendMessageToID', err)
+			} else {
+				window.WAPI.findChatFromId(contact.jid).then(chat => {
+					
+					let mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
             
-			mc.processAttachments([{file: mediaBlob}, 1], 1, chat).then(() => {
-					let media = mc._models[0];
-					media.sendToChat(chat, {caption:caption});
-					return true;
-				});            
-        });
-    
+					let mc = new Store.MediaCollection(chat);
+            
+					mc.processAttachments([{file: mediaBlob}, 1], 1, chat).then(() => {
+						let media = mc._models[0];
+						media.sendToChat(chat, {caption:caption});
+						return true;
+					});					
+					
+				}).catch(reject => {
+					console.log('2. Error in forceSendMessageToID, chat not found')
+				});
+			}
+		}).catch((err) => {
+			console.log('3. Error in forceSendMessageToID, chat not found', err)
+		})
+	} catch (e) {
+		console.log('4. Error in forceSendMessageToID, chat not found', err)
+	}    
+}
+
+
+window.WAPI.findJidFromNumber = (number) => {
+	try {
+		number = number.replace("@c.us", "").replace("+", "");
+		return Store.QueryExist.queryExist({ type: "phone", phone: number }).then(value => {
+			return {
+				status: 200,
+				jid: value.wid
+			}
+		})
+	} catch (error) {
+		console.log('Error in findJidFromNumber',  error + ' - ' + number);
+		return {};
+	}
+}
+
+window.WAPI.findChatFromId = (id) => {
+	try {
+		console.log('findChatFromId start', id);
+		const wid = window.Store.WidFactory.createWid(id);
+		console.log('wid: ', id);
+		return window.Store.Chat.find(wid);
+	} catch (error) {
+		console.log('Error in findChatFromId', error)
+		return null;
+	}
 }
 
 
 window.WAPI.sendMessageToID = function(chatid, msgText) {
-    var idUser = new window.Store.UserConstructor(chatid, {
-        intentionallyUsePrivateConstructor: true
-    });
-
-    console.log(idUser)
-
-    const teste = Store.FindChat.findOrCreateLatestChat(idUser)
-        .then(chatid => {
-            console.log(teste)
-            var mc = new Store.SendTextMsgToChat(chatid, msgText);
-            return true;
-        })
-
-    return teste
+    
+	try {
+		window.WAPI.findJidFromNumber(chatid).then(contact => {
+			if (contact.status === 404) {
+				console.log('1. Contact not found in forceSendMessageToID', err)
+			} else {
+				window.WAPI.findChatFromId(contact.jid).then(chat => {
+					chat.sendMessage(msgText);
+				}).catch(reject => {
+					console.log('2. Error in forceSendMessageToID, chat not found')
+				});
+			}
+		}).catch((err) => {
+			console.log('3. Error in forceSendMessageToID, chat not found', err)
+		})
+	} catch (e) {
+		console.log('4. Error in forceSendMessageToID, chat not found', err)
+	}
 
 }
+
+
+window.WAPI.sendMessage = function(id, message, done) {
+    var chat = WAPI.getChat(id);
+    if (chat !== undefined) {
+        if (done !== undefined) {
+            chat.sendMessage(message).then(function() {
+                function sleep(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+
+                var trials = 0;
+
+                function check() {
+                    for (let i = chat.msgs.models.length - 1; i >= 0; i--) {
+                        let msg = chat.msgs.models[i];
+
+                        if (!msg.senderObj.isMe || msg.body != message) {
+                            continue;
+                        }
+                        done(WAPI._serializeMessageObj(msg));
+                        return True;
+                    }
+                    trials += 1;
+                    console.log(trials);
+                    if (trials > 30) {
+                        done(true);
+                        return;
+                    }
+                    sleep(500).then(check);
+                }
+                check();
+            });
+            return true;
+        } else {
+            chat.sendMessage(message);
+            return true;
+        }
+    } else {
+        if (done !== undefined) done(false);
+        return false;
+    }
+};
+
+
 
 window.WAPI.base64ImageToFile = function(b64Data, filename) {
     var arr = b64Data.split(',');
@@ -2053,7 +2172,6 @@ window.WAPI.demoteParticipant = async function (idGroup, idParticipant) {
 }
 
 //Nova funcao alternativa para enviar mensagens(Nao envia para grupos)
-//Criada em 27/11/2019 Mike
 window.WAPI.sendMessageToID2 = function(id, msgText) {
     
     window.Store.WapQuery.queryExist(id).then(function(e) {
@@ -2150,7 +2268,7 @@ function prepareMessageButtons(e, t) {
 
 
 
-/** 28/04/2020 - Mike
+/**
  * Send location
  *
  * @param {string} chatId '558199999999@c.us'
@@ -2561,20 +2679,17 @@ window.WAPI.sendPool = async function(chatId, title, surveyList) {
 	return await (0, sendRawMessageWAPI)(chatId, survey)
 }
 
-//Mike W. Lustosa 14/11/2022
 window.WAPI.onIncomingCall = function (onIncomingCallCallback) {
 	window.Store.Call.on('add', WAPI.onIncomingCallCallback);		
     return true;	
 }
 
-//Mike W. Lustosa 05/08/2023
 window.WAPI.onGetUnReadMessageFromMe = function () {
 	Store.Chat.on("change:hasUnread", (jsonMsg) => {
 		SetConsoleMessage("getUnreadMessagesFromMe", JSON.stringify(jsonMsg));
 	});
 }
 
-//Mike W. Lustosa 14/11/2022
 window.WAPI.onIncomingCallCallback = async function() {
 	SetConsoleMessage('getIncomingCall', window.Store.Call._models[0].__x_peerJid.user)
 	window.Store.Call._models = []
