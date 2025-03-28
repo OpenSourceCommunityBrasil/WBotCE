@@ -28,6 +28,8 @@ type
     const AContacts: TResponseGroupContacts) of object;
   TRequestGroupsEvent = procedure(const ASender: TObject;
     const AGroups: TResponseGroups) of object;
+  TRequestCheckIsValidNumberEvent = procedure(const ASender: TObject;
+    const APhone: String; AIsValid: Boolean) of object;
 
   { TWBotCE }
 
@@ -47,6 +49,7 @@ type
     FOnRequestChat: TRequestChatEvent;
     FOnRequestContact: TRequestContactsEvent;
     FOnRequestGroupContacts: TRequestGroupContactsEvent;
+    FOnRequestCheckIsValidNumber: TRequestCheckIsValidNumberEvent;
     FForm: TWBotceForm;
     FOnRequestGroups: TRequestGroupsEvent;
     FVersion: string;
@@ -64,20 +67,22 @@ type
     destructor Destroy; override;
     procedure Connect;
     procedure Disconnect(const ALogout: boolean = False);
+    procedure CheckIsValidNumber(APhone: string);
     procedure GetAllContacts;
     procedure GetAllGroupContacts(AGroupId: String);
     procedure GetAllGroups;
     procedure GetBatteryLevel;
     procedure GetMyNumber;
     procedure GetUnreadMessages;
+    procedure GroupAddParticipant(AGroupId, APhone: String);
+    procedure GroupRemoveParticipant(AGroupId, APhone: String);
     procedure ReadMsg(const APhone: String);
     procedure SendContact(const APhone, AContact: string);
     procedure SendFile(const APhone, ACaption, AFileName: string); overload;
     procedure SendFile(const APhone, ACaption, AFileName: string; AStream: TStream); overload;
     procedure SendMsg(const APhone, AMsg: string);
     procedure SendButtons(const APhone, AMsg, AButtons, AFooter: string);
-    procedure GroupAddParticipant(AGroupId, APhone: String);
-    procedure GroupRemoveParticipant(AGroupId, APhone: String);
+    procedure ClearChat(const APhoneOrGroupId: string);
   public
     Property  MyNumber : String Read FMyNumber;
     property Authenticated: boolean read GetAuthenticated;
@@ -112,6 +117,8 @@ type
       read FOnRequestGroupContacts write FOnRequestGroupContacts;
     property OnRequestGroups: TRequestGroupsEvent
       read FOnRequestGroups write FOnRequestGroups;
+    property OnRequestCheckIsValidNumber: TRequestCheckIsValidNumberEvent
+      read FOnRequestCheckIsValidNumber write FOnRequestCheckIsValidNumber;
   end;
 
 procedure Register;
@@ -177,6 +184,7 @@ var
   VResponseGroupContacts: TResponseGroupContacts;
   VResponseBattery: TResponseBattery;
   VResponseMyNumber: TResponseMyNumber;
+  VResponseCheckIsValidNumber: TResponseCheckIsValidNumber;
 begin
 
   if (Assigned(FOnNotification)) then
@@ -294,6 +302,20 @@ begin
         FreeAndNil(VResponseMyNumber);
       end;
     end;
+
+    atNewCheckIsValidNumber:
+    begin
+      if (Assigned(FOnRequestCheckIsValidNumber)) then
+      begin
+        VResponseCheckIsValidNumber := TResponseCheckIsValidNumber.Create;
+        try
+          VResponseCheckIsValidNumber.LoadJSON(AData);
+          FOnRequestCheckIsValidNumber(Self, VResponseCheckIsValidNumber.Result.Id , VResponseCheckIsValidNumber.Result.Valid);
+        finally
+          FreeAndNil(VResponseCheckIsValidNumber);
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -330,6 +352,11 @@ end;
 procedure TWBotCE.Disconnect(const ALogout: boolean);
 begin
   FForm.Disconnect(ALogout);
+end;
+
+procedure TWBotCE.CheckIsValidNumber(APhone: string);
+begin
+  FForm.CheckIsValidNumber(APhone);
 end;
 
 procedure TWBotCE.GetAllContacts;
@@ -379,7 +406,7 @@ end;
 procedure TWBotCE.SendFile(const APhone, ACaption, AFileName: string);
 var
   VStream: TStream;
-begin     
+begin
   // TODO: Check phone structure
   if (not(FileExists(AFileName))) then
   begin
@@ -387,8 +414,7 @@ begin
     Exit;
   end;
   VStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
-  try                                      
-    //VFileBase64 := StreamToBase64(VStream);
+  try
     SendFile(APhone, ACaption, AFileName, VStream);
   finally
     FreeAndNil(VStream);
@@ -408,24 +434,28 @@ begin
     VLog:= TStringList.Create;
     VFileBase64 := StreamToBase64(AStream);
     VFileName := ExtractFileName(AFileName);
-    VFileExt := ExtractFileExt(AFileName);
-    VMsg := 'data:application/';                                                     //, '.pdf'
-    if (AnsiIndexStr(VFileExt, ['.jpg', '.jpeg', '.tif', '.ico', '.bmp', '.png', '.raw']) > -1) then
-    begin
-      {$IfDef wbot_debug}
-      WriteLn('File ext: '+VFileExt);
-      {$EndIf}
-      VMsg := 'data:image/';
-    end
+    VFileExt := Copy(LowerCase(ExtractFileExt(AFileName)), 2, 3);
+
+    {$IfDef wbot_debug}
+    WriteLn('File ext: '+VFileExt);
+    {$EndIf}
+
+    if AnsiIndexStr(VFileExt, ['mp3', 'ogg']) > -1 then
+      VMsg := 'data:audio/'
     else
-    begin
-      if Pos('.',VFileExt) > 0 then
-        VFileExt:= Copy(VFileExt,2,3);
-    end;
+    if AnsiIndexStr(VFileExt, ['avi', 'mpeg']) > -1 then
+      VMsg := 'data:video/'
+    else
+    if (AnsiIndexStr(VFileExt, ['jpg', 'jpeg', 'tif', 'ico', 'bmp', 'png', 'raw']) > -1) then
+      VMsg := 'data:image/'
+    else
+      VMsg := 'data:application/';
+
     VMsg := VMsg + VFileExt + ';base64,' + VFileBase64;
+
     // Send
     {$IfDef wbot_debug}
-     VLog.Add(VMsg);
+    VLog.Add(VMsg);
     VLog.SaveToFile('LogFile.Txt');
     WriteLn(VMsg);
     {$EndIf}
@@ -445,6 +475,12 @@ procedure TWBotCE.SendButtons(const APhone, AMsg, AButtons, AFooter: string);
 begin
   // TODO: Check phone structure
   FForm.SendButtons(APhone, AMsg, AButtons, AFooter);
+end;
+
+procedure TWBotCE.ClearChat(const APhoneOrGroupId: string);
+begin
+  // TODO: Check phone structure
+  FForm.ClearChat(APhoneOrGroupId);
 end;
 
 procedure TWBotCE.GroupAddParticipant(AGroupId, APhone: String);

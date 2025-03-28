@@ -25,8 +25,8 @@ const
 
   CMD_SEND_CHAT_STATE =
     'Store.WapQuery.sendChatstateComposing("<#PHONE#>");';  
-  CMD_SEND_CONTACT
-    = 'window.WAPI.sendContact("<#PHONE#>", "<#CONTACT#>")';
+  CMD_SEND_CONTACT =
+    'window.WAPI.sendContact("<#PHONE#>", "<#CONTACT#>")';
   CMD_SEND_MSG =
     'window.WAPI.sendMessageToID("<#PHONE#>","<#MSG#>")';
   CMD_SEND_BUTTONS =
@@ -51,13 +51,18 @@ const
   CMD_LOGOUT =
     'localStorage.clear(); location.reload();';
 
-  CMD_GROUP_ADD_PARTICIPANT = 'window.WAPI.addParticipant("<#GROUP_ID#>", "<#PARTICIPANT_NUMBER#>"); setTimeout(function(){ window.WAPI.getGroupParticipantIDs("<#GROUP_ID#>"); }, 3000);';
-  CMD_GROUP_REMOVE_PARTICIPANT = 'window.WAPI.removeParticipant("<#GROUP_ID#>", "<#PARTICIPANT_NUMBER#>");setTimeout(function(){ window.WAPI.getGroupParticipantIDs("<#GROUP_ID#>"); }, 3000);';
+  CMD_GROUP_ADD_PARTICIPANT =
+    'window.WAPI.addParticipant("<#GROUP_ID#>", "<#PARTICIPANT_NUMBER#>"); setTimeout(function(){ window.WAPI.getGroupParticipantIDs("<#GROUP_ID#>"); }, 3000);';
+  CMD_GROUP_REMOVE_PARTICIPANT =
+    'window.WAPI.removeParticipant("<#GROUP_ID#>", "<#PARTICIPANT_NUMBER#>");setTimeout(function(){ window.WAPI.getGroupParticipantIDs("<#GROUP_ID#>"); }, 3000);';
 
-  CMD_READ_MSG =
-    'window.WAPI.sendSeen("<#PHONE#>")';
+  CMD_CHECK_NUMBER_STATUS = 'window.WAPI.checkNumberStatus("<#PHONE#>");';
 
-  CMD_GET_MYNUMBER= 'getMyNumber();';
+  CMD_READ_MSG     = 'window.WAPI.sendSeen("<#PHONE#>")';
+
+  CMD_GET_MYNUMBER = 'getMyNumber();';
+
+  CMD_CLEARCHAT    = 'window.WAPI.clearChat("<#PHONE#>");';
 
 resourcestring
   EXCEPT_CEF_APP =

@@ -75,6 +75,7 @@ type
     procedure Connect;
     procedure Disconnect(const ALogout: boolean = False);
   public
+    procedure CheckIsValidNumber(APhone: string);
     procedure GetQrCode;
     procedure GetBatteryLevel; 
     procedure GetUnreadMessages;  
@@ -82,13 +83,14 @@ type
     procedure GetAllGroupContacts(AGroupId: String);
     procedure GetAllGroups;
     procedure GetMyNumber;
+    procedure GroupAddParticipant(const AGroupId, ANumber: string);
+    procedure GroupRemoveParticipant(const AGroupId, ANumber: string);
     procedure ReadMsg(const ANumber: String);
     procedure SendContact(const ANumber, AContact: string);
     procedure SendMsg(const ANumber, AMsg: string);
     procedure SendButtons(const ANumber, AMsg, AButtons, AFooter: string);
     procedure SendMsgBase64(const ANumber, AMsg, AFileName, ACaption: string);
-    procedure GroupAddParticipant(const AGroupId, ANumber: string);
-    procedure GroupRemoveParticipant(const AGroupId, ANumber: string);
+    procedure ClearChat(const ANumberOrGroupId: string);
   public
     property MyNumber: String read FMyNumber write FMyNumber;
     property Conected: boolean read FConected;
@@ -423,6 +425,15 @@ begin
   end;
 end;
 
+procedure TWBotCEForm.CheckIsValidNumber(APhone: string);
+var
+  VScript: string;
+begin
+  VScript := CMD_CHECK_NUMBER_STATUS;
+  VScript := ReplaceVAR(VScript, '<#PHONE#>', APhone);
+  ExecuteScript(VScript);
+end;
+
 procedure TWBotCEForm.GetQrCode;
 begin
   if (not(FBrowser)) then
@@ -517,6 +528,15 @@ begin
   VScript := ReplaceVAR(VScript, '<#MSG#>', AMsg); 
   VScript := ReplaceVAR(VScript, '<#FILENAME#>', AFileName);
   VScript := ReplaceVAR(VScript, '<#CAPTION#>', ACaption);
+  ExecuteScript(VScript);
+end;
+
+procedure TWBotCEForm.ClearChat(const ANumberOrGroupId: string);
+var
+  VScript: string;
+begin
+  VScript := CMD_CLEARCHAT;
+  VScript := ReplaceVAR(VScript, '<#PHONE#>', ANumberOrGroupId);
   ExecuteScript(VScript);
 end;
 

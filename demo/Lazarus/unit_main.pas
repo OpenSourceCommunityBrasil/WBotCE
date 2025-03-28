@@ -13,18 +13,25 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    BtnAdicionarContato: TButton;
+    Button2: TButton;
     ButtonCarregaContatos: TButton;
     ButtonCarregaGrupos: TButton;
     ButtonConecta: TButton;
     ButtonEnviarMsgFile: TButton;
-    ButtonEnviarMsgFile1: TButton;
+    ButtonEnviarMsgFileGrupo: TButton;
+    ButtonLimparChatGrupo: TButton;
     ButtonEnviarMsgText: TButton;
-    ButtonEnviarMsgText1: TButton;
-    CheckBox1: TCheckBox;
+    ButtonEnviarMsgButton: TButton;
+    ButtonEnviarMsgTextGrupo: TButton;
+    ButtonValidarNumero: TButton;
+    ButtonLimparChat: TButton;
+    ChkRespostaAutomatica: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
+    EditGrupo: TEdit;
+    EdtAddContato: TEdit;
     EditNumero: TEdit;
-    EditNumero1: TEdit;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
     Label1: TLabel;
@@ -33,14 +40,18 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
     LabelStatus: TLabel;
     LabelCtName: TLabel;
     LabelCtId: TLabel;
     ListBoxContatos: TListBox;
+    ListBoxGrupoContatos: TListBox;
     ListBoxGrupos: TListBox;
     MemoLog: TMemo;
     MemoMsgTxt: TMemo;
-    MemoMsgTxt1: TMemo;
+    MemoMsgTxtGrupo: TMemo;
     MemoRecebida: TMemo;
     MemoEnviada: TMemo;
     OpenDialog1: TOpenDialog;
@@ -52,14 +63,20 @@ type
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     WBotCE1: TWBotCE;
+    procedure BtnAdicionarContatoClick(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
     procedure ButtonCarregaGruposClick(Sender: TObject);
     procedure ButtonCarregaContatosClick(Sender: TObject);
     procedure ButtonConectaClick(Sender: TObject);
-    procedure ButtonEnviarMsgFile1Click(Sender: TObject);
+    procedure ButtonEnviarMsgButtonClick(Sender: TObject);
     procedure ButtonEnviarMsgFileClick(Sender: TObject);
-    procedure ButtonEnviarMsgText1Click(Sender: TObject);
+    procedure ButtonEnviarMsgFileGrupoClick(Sender: TObject);
+    procedure ButtonEnviarMsgTextGrupoClick(Sender: TObject);
     procedure ButtonEnviarMsgTextClick(Sender: TObject);
-    procedure CheckBox1Change(Sender: TObject);
+    procedure ButtonLimparChatClick(Sender: TObject);
+    procedure ButtonLimparChatGrupoClick(Sender: TObject);
+    procedure ButtonValidarNumeroClick(Sender: TObject);
+    procedure ChkRespostaAutomaticaChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ListBoxContatosDblClick(Sender: TObject);
     procedure ListBoxGruposDblClick(Sender: TObject);
@@ -69,8 +86,12 @@ type
     procedure WBotCE1MyNumber(Sender: TObject);
     procedure WBotCE1RequestChat(const Sender: TObject;
       const AChats: TResponseChat);
+    procedure WBotCE1RequestCheckIsValidNumber(const ASender: TObject;
+      const ANumber: String; AResult: Boolean);
     procedure WBotCE1RequestContact(const Sender: TObject;
       const AContacts: TResponseContact);
+    procedure WBotCE1RequestGroupContacts(const ASender: TObject;
+      const AContacts: TResponseGroupContacts);
     procedure WBotCE1RequestGroups(const Sender: TObject;
       const AGroups: TResponseGroups);
   private
@@ -84,6 +105,8 @@ var
   Form1: TForm1;
 
 implementation
+
+uses DateUtils, Clipbrd;
 
 {$R *.lfm}
 
@@ -122,11 +145,46 @@ begin
   end;
 end;
 
+procedure TForm1.ButtonEnviarMsgButtonClick(Sender: TObject);
+const
+  Buttons = '[{buttonId: "id1", buttonText:{displayText: "OPTION1"}, type: 1}, {buttonId: "id2", buttonText: {displayText: "OPTION2"}, type: 1}]';
+  Footer = 'Choose option';
+begin
+  if WBotCE1.Conected then
+  begin
+    WBotCE1.SendButtons(EditNumero.Text, NormalizeString(MemoMsgTxt.Text), Buttons, Footer);
+  end;
+end;
+
 procedure TForm1.ButtonEnviarMsgTextClick(Sender: TObject);
 begin
   if WBotCE1.Conected then
   begin
     WBotCE1.SendMsg(EditNumero.Text, NormalizeString(MemoMsgTxt.Text));
+  end;
+end;
+
+procedure TForm1.ButtonLimparChatClick(Sender: TObject);
+begin
+  if WBotCE1.Conected then
+  begin
+    WbotCE1.ClearChat(EditNumero.Text);
+  end;
+end;
+
+procedure TForm1.ButtonLimparChatGrupoClick(Sender: TObject);
+begin
+  if WBotCE1.Conected then
+  begin
+    WbotCE1.ClearChat(EditGrupo.Text);
+  end;
+end;
+
+procedure TForm1.ButtonValidarNumeroClick(Sender: TObject);
+begin
+  if WBotCE1.Conected then
+  begin
+    WBotCE1.CheckIsValidNumber(EditNumero.Text);
   end;
 end;
 
@@ -138,26 +196,25 @@ begin
   end;
 end;
 
-procedure TForm1.ButtonEnviarMsgText1Click(Sender: TObject);
-begin
-  if WBotCE1.Conected then
-  begin
-    WBotCE1.SendMsg(EditNumero1.Text, NormalizeString(MemoMsgTxt1.Text));
-  end;
-end;    
-
-procedure TForm1.ButtonEnviarMsgFile1Click(Sender: TObject);
+procedure TForm1.ButtonEnviarMsgFileGrupoClick(Sender: TObject);
 begin
   if WBotCE1.Conected and OpenDialog1.Execute then
   begin
-    WBotCE1.SendFile(EditNumero1.Text, NormalizeString(MemoMsgTxt1.Text),
-      OpenDialog1.FileName);
+    WBotCE1.SendFile(EditGrupo.Text, NormalizeString(MemoMsgTxtGrupo.Text), OpenDialog1.FileName);
   end;
 end;
 
-procedure TForm1.CheckBox1Change(Sender: TObject);
+procedure TForm1.ButtonEnviarMsgTextGrupoClick(Sender: TObject);
 begin
-  WBotCE1.MonitorUnreadMsgs:=CheckBox1.Checked;
+  if WBotCE1.Conected then
+  begin
+    WBotCE1.SendMsg(EditGrupo.Text, NormalizeString(MemoMsgTxtGrupo.Text));
+  end;
+end;
+
+procedure TForm1.ChkRespostaAutomaticaChange(Sender: TObject);
+begin
+  WBotCE1.MonitorUnreadMsgs:=ChkRespostaAutomatica.Checked;
 end;
 
 procedure TForm1.FormShow(Sender: TObject);
@@ -179,7 +236,12 @@ begin
   VIndex := Pos('@g.us', VText);
   if (VIndex > 0) then
   begin
-    EditNumero1.Text := Copy(VText, 0, Pos('@g.us', VText) + 5);
+    EditGrupo.Text := Copy(VText, 0, Pos('@g.us', VText) + 4);
+
+    if WBotCE1.Conected then
+    begin
+      WBotCE1.GetAllGroupContacts(Copy(VText, 1, VIndex + 4));
+    end;
   end;
 end;
 
@@ -199,11 +261,27 @@ begin
   end;
 end;
 
+procedure TForm1.BtnAdicionarContatoClick(Sender: TObject);
+begin
+  if WBotCE1.Conected then
+  begin
+    WBotCE1.GroupAddParticipant(EditGrupo.Text, EdtAddContato.Text);
+  end;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  if WBotCE1.Conected then
+  begin
+    WBotCE1.GroupRemoveParticipant(EditGrupo.Text, ListBoxGrupoContatos.GetSelectedText);
+  end;
+end;
+
 procedure TForm1.WBotCE1Connected(Sender: TObject);
 begin
   LabelStatus.Color:=clGreen;
   LabelStatus.Caption:='Conectado'; 
-  ButtonConecta.Caption:='Disconectar';
+  ButtonConecta.Caption:='Desconectar';
   AddLog('Conectado');
 end;
 
@@ -211,8 +289,8 @@ procedure TForm1.WBotCE1Disconnected(Sender: TObject);
 begin
   Label6.Caption:= '';
   LabelStatus.Color:=clRed;
-  LabelStatus.Caption:='Disconectado';
-  ButtonConecta.Caption:='Connectar';
+  LabelStatus.Caption:='Desconectado';
+  ButtonConecta.Caption:='Conectar';
   AddLog('Desconectado');
 end;
 
@@ -231,6 +309,7 @@ procedure TForm1.WBotCE1RequestChat(const Sender: TObject;
 var
   VChat: TChat;
   VMsg: TMessage;
+  Dt: TDateTime;
 begin
   for VChat in AChats.Result do
   begin
@@ -238,16 +317,30 @@ begin
     begin
       for VMsg in VChat.Messages do
       begin
-        if (Assigned(VMsg)) and (not(VMsg.Sender.IsMe)) then
+        if (Assigned(VMsg)) and (not(VMsg.FromMe)) then
         begin
           LabelCtId.Caption:=VChat.Contact.Id;
           LabelCtName.Caption:=VChat.Contact.Name;
-          MemoRecebida.Text:=VMsg.Content;
-          RespostaAutomatica(VChat.Contact.Id, VMsg.Content);
+
+          Dt := VMsg.Timestamp/(SecsPerDay*1000.0);
+
+          MemoRecebida.Text:=VMsg.Content + ' [' + DateTimeToStr(Dt) + '] - ' + VMsg.Chat.Contact.Id;
+
+          if ChkRespostaAutomatica.Checked then
+            RespostaAutomatica(VChat.Contact.Id, VMsg.Content);
         end;
       end;
     end;
   end;
+end;
+
+procedure TForm1.WBotCE1RequestCheckIsValidNumber(const ASender: TObject;
+  const ANumber: String; AResult: Boolean);
+begin
+  if AResult then
+    ShowMessage('Número válido (' + ANumber + ')' + '[' + ANumber.Substring(2).Replace('@c.us', '') + ']')
+  else
+    ShowMessage('Número inválido ' + ANumber);
 end;
 
 procedure TForm1.WBotCE1RequestContact(const Sender: TObject;
@@ -264,6 +357,14 @@ begin
   end;
 end;
 
+procedure TForm1.WBotCE1RequestGroupContacts(const ASender: TObject;
+  const AContacts: TResponseGroupContacts);
+begin
+  ListBoxGrupoContatos.Items.Assign(AContacts.Result);
+
+  Clipboard.AsText := AContacts.Result.Text;
+end;
+
 procedure TForm1.WBotCE1RequestGroups(const Sender: TObject;
   const AGroups: TResponseGroups);
 begin
@@ -278,7 +379,7 @@ end;
 
 procedure TForm1.Limpar;
 begin  
-  PageControl1.ActivePage := TabSheet1;  
+  PageControl1.ActivePage := TabSheet1;
   PageControlMsg.ActivePage := TabSheet2;
   LabelStatus.Color := clRed;
   LabelStatus.Font.Color := clWhite;
@@ -287,15 +388,15 @@ begin
   EditNumero.Text:= '';
   MemoMsgTxt.Text:= 'Olá';
   ListBoxGrupos.Clear;
-  EditNumero1.Text:= '';
-  MemoMsgTxt1.Text:= 'Olá';
+  EditGrupo.Text:= '';
+  MemoMsgTxtGrupo.Text:= 'Olá';
 end;
 
 procedure TForm1.RespostaAutomatica(const AFoneId, AMsgRecebida: String);
 const
   CMSGDEF = 'Você esta recebendo uma mensagem automatica ao escolher a opção 1!';
-  CMSGPER ='Olá, este é um teste de mensagem automatica feito com WBot 1.0'+'\n'+
-           'Digite a opção *1*.';
+  CMSGPER = 'Olá, este é um teste de mensagem automatica feito com WBot 1.0'+'\n'+
+            'Digite a opção *1*.';
 begin
   //Ler mensagem
   WBotCE1.ReadMsg(AFoneId);

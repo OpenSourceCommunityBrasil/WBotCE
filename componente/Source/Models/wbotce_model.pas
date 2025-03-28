@@ -23,6 +23,7 @@ type
     // Response
     atGetAllChats, atGetAllContacts, atGetAllGroupContacts, atGetAllGroups,
     atGetBatteryLevel, atGetQrCode, atGetUnreadMessages, atGetMyNumber,
+    atNewCheckIsValidNumber,
     // Connection
     atConnected, atConnecting, atDisconnected, atDisconnecting, atDestroy,
     atDestroying, atInitializing, atInitialized
@@ -268,7 +269,7 @@ type
     FId: string;
     FIsBusiness: boolean;
     FIsEnterprise: boolean;
-    FIsMe: boolean;
+//    FIsMe: boolean; deprecated;
     FIsMyContact: boolean;
     FIsPSA: boolean;
     FIsUser: boolean;
@@ -288,7 +289,7 @@ type
     property Id: string read FId write FId;
     property IsBusiness: boolean read FIsBusiness write FIsBusiness;
     property IsEnterprise: boolean read FIsEnterprise write FIsEnterprise;
-    property IsMe: boolean read FIsMe write FIsMe;
+//    property IsMe: boolean read FIsMe write FIsMe;
     property IsMyContact: boolean read FIsMyContact write FIsMyContact;
     property IsPSA: boolean read FIsPSA write FIsPSA;
     property IsUser: boolean read FIsUser write FIsUser;
@@ -396,6 +397,7 @@ type
   TMessage = class(TModel)
   private
     FAck: extended;
+    FAuthor: string;
     FBody: string;
     FBroadcast: Boolean;
     FCaption: string;
@@ -407,17 +409,31 @@ type
     FFilehash: string;
     FFilename: string;
     FFrom: string;
+    FFromMe: boolean;
+    //FGroupMentions: TGroupMentions;
+    FHasReaction: boolean;
     FId: string;
     FInvis: boolean;
+    //FInvokedBotWid: ???;
+    FIsAvatar: boolean;
+    FIsDynamicReplyButtonsMsg: boolean;
     FIsForwarded: boolean;
     FIsGroupMsg: boolean;
+    FIsMdHistoryMsg: boolean;
     FIsMedia: boolean;
     FIsMMS: boolean;
     FIsNewMsg: boolean;
     FIsNotification: Boolean;
     FIsPSA: boolean;
+    FIsSentCagPollCreation: boolean;
+    FIsVcardOverMmsDocument: boolean;
+    FKicNotified: boolean;
     FLabels: TStrings;
+    FLastPlaybackProgress: extended;
+    FLastUpdateFromServerTs: extended;
     FLat: extended;
+    //FLatestEditMsgKey: ???;
+    //FLatestEditSenderTimestampMs: ???;
     FLng: extended;
     FMediaData: TMediaData;
     FMediaKey: string;
@@ -426,12 +442,16 @@ type
     FMimetype: string;
     FNotifyName: string;
     FPageCount: extended;
+    FPollInvalidated: boolean;
+    FProductHeaderImageRejected: boolean;
     FQuotedMsgObj: string;
     FRecvFresh: boolean;
+    FRequiresDirectConnection: boolean;
     FSelf: string;
     FSender: TSender;
     FSize: extended;
     FStar: boolean;
+    FStickerSentTs: extended;
     FSubType: string;
     FT: extended;
     FTimestamp: extended;
@@ -443,49 +463,67 @@ type
     procedure AfterConstruction; override;
   published
     property Ack: extended read FAck write FAck;
+    property Author: string read FAuthor write FAuthor;
     property Body: string read FBody write FBody;
     property Broadcast: Boolean read FBroadcast write FBroadcast;
     property Chat: TChat read FChat;
     property ChatId: string read FChatId write FChatId;
     property Caption: string read FCaption write FCaption;
+    property ClientUrl: string read FClientUrl write FClientUrl;
     property Content: string read FContent write FContent;
+    property DirectPath: string read FDirectPath write FDirectPath;
+    property Filehash: string read FFilehash write FFilehash;
+    property Filename: string read FFilename write FFilename;
     property From: string read FFrom write FFrom;
+    property FromMe: boolean read FFromMe write FFromMe;
+    //property FGroupMentions: TGroupMentions read FGroupMentions write FGroupMentions;
+    property HasReaction: boolean read FHasReaction write FHasReaction;
     property Id: string read FId write FId;
     property Invis: boolean read FInvis write FInvis;
+    //property InvokedBotWid: ??? read FInvokedBotWid write FInvokedBotWid;
+    property IsAvatar: boolean read FIsAvatar write FIsAvatar;
+    property IsDynamicReplyButtonsMsg: boolean read FIsDynamicReplyButtonsMsg write FIsDynamicReplyButtonsMsg;
     property IsForwarded: boolean read FIsForwarded write FIsForwarded;
     property IsGroupMsg: boolean read FIsGroupMsg write FIsGroupMsg;
+    property IsMdHistoryMsg: boolean read FIsMdHistoryMsg write FIsMdHistoryMsg;
     property IsMMS: boolean read FIsMMS write FIsMMS;
     property IsMedia: boolean read FIsMedia write FIsMedia;
     property IsNewMsg: boolean read FIsNewMsg write FIsNewMsg;
-    property Lat: extended read FLat write FLat;
-    property Lng: extended read FLng write FLng;
-    property SubType: string read FSubType write FSubType;
     property IsNotification: Boolean read FIsNotification write FIsNotification;
     property IsPSA: boolean read FIsPSA write FIsPSA;
+    property IsSentCagPollCreation: boolean read FIsSentCagPollCreation write FIsSentCagPollCreation;
+    property IsVcardOverMmsDocument: boolean read FIsVcardOverMmsDocument write FIsVcardOverMmsDocument;
+    property KicNotified: boolean read FKicNotified write FKicNotified;
     property Labels: TStrings read FLabels;
+    property LastPlaybackProgress: extended read FLastPlaybackProgress write FLastPlaybackProgress;
+    property LastUpdateFromServerTs: extended read FLastUpdateFromServerTs write FLastUpdateFromServerTs;
+    property Lat: extended read FLat write FLat;
+    //property FLatestEditMsgKey: ??? read FLatestEditMsgKey write FLatestEditMsgKey;
+    //property FLatestEditSenderTimestampMs: ??? read FLatestEditSenderTimestampMs write FLatestEditSenderTimestampMs;
+    property Lng: extended read FLng write FLng;
     property MediaData: TMediaData read FMediaData;
-    property MentionedJidList: TStrings read FMentionedJidList;
-    property NotifyName: string read FNotifyName write FNotifyName;
-    property RecvFresh: boolean read FRecvFresh write FRecvFresh;
-    property Self: string read FSelf write FSelf;
-    property Mimetype: string read FMimetype write FMimetype;
-    property Filename: string read FFilename write Ffilename;
-    property ClientUrl: string read FClientUrl write FClientUrl;
-    property DirectPath: string read FDirectPath write FDirectPath;
-    property Filehash: string read FFilehash write FFilehash;
-    property Uploadhash: string read FUploadhash write FUploadhash;
-    property Size: extended read FSize write FSize;
     property MediaKey: string read FMediaKey write FMediaKey;
-    property MediaKeyTimestamp: extended
-      read FMediaKeyTimestamp write FMediaKeyTimestamp;
+    property MediaKeyTimestamp: extended read FMediaKeyTimestamp write FMediaKeyTimestamp;
+    property MentionedJidList: TStrings read FMentionedJidList;
+    property Mimetype: string read FMimetype write FMimetype;
+    property NotifyName: string read FNotifyName write FNotifyName;
     property PageCount: extended read FPageCount write FPageCount;
+    property PollInvalidated: boolean read FPollInvalidated write FPollInvalidated;
+    property ProductHeaderImageRejected: boolean read FProductHeaderImageRejected write FProductHeaderImageRejected;
     property QuotedMsgObj: string read FQuotedMsgObj write FQuotedMsgObj;
+    property RecvFresh: boolean read FRecvFresh write FRecvFresh;
+    property RequiresDirectConnection: boolean read FRequiresDirectConnection write FRequiresDirectConnection;
+    property Self: string read FSelf write FSelf;
     property Sender: TSender read FSender;
+    property Size: extended read FSize write FSize;
     property Star: boolean read FStar write FStar;
+    property StickerSentTs: extended read FStickerSentTs write FStickerSentTs;
+    property SubType: string read FSubType write FSubType;
     property T: extended read FT write FT;
     property Timestamp: extended read FTimestamp write FTimestamp;
     property &To: string read FTo write FTo;
     property &Type: string read FType write FType;
+    property Uploadhash: string read FUploadhash write FUploadhash;
   end;
 
   { TMessageList }
@@ -637,11 +675,47 @@ type
     property Result: TChatList read FResult;
   end;
 
+  { TCheckIsValidNumber }
+  TCheckIsValidNumber = class(TModel)
+  private
+    FId: String;
+    FValid: Boolean;
+  published
+    property Id: String read FId write FId;
+    property Valid: Boolean read FValid write FValid;
+  end;
+
+  { TResponseCheckIsValidNumber }
+
+  TResponseCheckIsValidNumber = class(TModel)
+  private
+    FResult: TCheckIsValidNumber;
+  public
+    destructor Destroy; override;
+    procedure AfterConstruction; override;
+  published
+    property Result: TCheckIsValidNumber read FResult;
+  end;
+
 implementation
 
 uses
   // WBotCE
   WBotce_Utils;
+
+{ TResponseCheckIsValidNumber }
+
+destructor TResponseCheckIsValidNumber.Destroy;
+begin
+  FreeAndNil(FResult);
+  inherited Destroy;
+end;
+
+procedure TResponseCheckIsValidNumber.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  FResult := TCheckIsValidNumber.Create;
+end;
 
 { TResponseGroupContacts }
 

@@ -55,8 +55,6 @@ begin
       UnicodeString(LocalIni.ReadString('Paths', 'Locales', 'cef'+ PathDelim + 'locales'));
     GlobalCEFApp.Cache :=
       UnicodeString(LocalIni.ReadString('Paths', 'Cache', 'tmp' + PathDelim + 'cache'));
-    GlobalCEFApp.UserDataPath :=
-      UnicodeString(LocalIni.ReadString('Paths', 'UserData', 'tmp' + PathDelim + 'user'));
   end;
   Result := GlobalCEFApp.StartMainProcess;
 end;
@@ -94,8 +92,7 @@ begin
      ExtractFilePath(ParamStr(0)) + 'cef'+ PathDelim + 'locales')
   end;
   LocalIni.WriteString('Paths', 'Cache', string(GlobalCEFApp.Cache));
-  LocalIni.WriteString('Paths', 'UserData', string(GlobalCEFApp.UserDataPath));
-  FreeAndNil(GlobalCEFApp);   
+  FreeAndNil(GlobalCEFApp);
   {$IfDef wbotce_debug}
   WriteLn('DestroyGlobalCEFApp');
   {$EndIf}
