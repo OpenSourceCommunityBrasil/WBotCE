@@ -1823,7 +1823,7 @@ window.WAPI.sendImage = async function(imgBase64, chatid, filename, caption) {
             
 					let mc = new Store.MediaCollection(chat);
             
-					mc.processAttachments([{file: mediaBlob}, 1], 1, chat).then(() => {
+					mc.processAttachmentsForChat([{file: mediaBlob}, 1], 1, chat).then(() => {
 						let media = mc._models[0];
 						media.sendToChat(chat, {caption:caption});
 						return true;
