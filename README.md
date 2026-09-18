@@ -15,7 +15,7 @@
 
 [![WBot first steps](https://img.youtube.com/vi/JT7P0asACjI/0.jpg)](https://youtu.be/JT7P0asACjI "WBot first steps")
 
-## Dependancies
+## Dependencies
 This project depends on the following package: [CEF4Delphi](https://github.com/salvadordf/CEF4Delphi)
 
 ## Features
